@@ -8,11 +8,12 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'Onest',-apple-system,sans-serif;min-height:100svh;overflow-x:hidden;background:#080010;--mx:50%;--my:50%}
-body::after{content:'';position:fixed;width:20px;height:20px;background:#7c3aed;border-radius:50%;pointer-events:none;transform:translate(calc(var(--mx) - 10px),calc(var(--my) - 10px));z-index:9999;mix-blend-mode:plus-lighter;transition:transform .1s}
+body{font-family:'Onest',-apple-system,sans-serif;min-height:100svh;overflow-x:hidden;background:#080010}
 a,button,.sb,.glass{cursor:pointer}
 
 #bg-canvas{position:fixed;inset:0;z-index:0;width:100%;height:100%}
+
+#flash{position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0;background:rgba(255,255,255,.55);transition:opacity .12s}
 
 #flash{position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0;background:rgba(255,255,255,.55);transition:opacity .12s}
 #flash.go{animation:flash-anim .5s ease forwards}
@@ -298,35 +299,15 @@ avImg.onerror=function(){avEmoji.style.display='flex'};
 avImg.src='avatar.png';
 setTimeout(()=>{if(avImg.naturalWidth===0)avEmoji.style.display='flex'},3000);
 
-/* STATUS - Steam Online/Offline/In-Game */
-async function updateStatus(){
-  const b=document.getElementById('statBadge'),txt=document.getElementById('statTxt'),dot=document.getElementById('statDot');
-  try{
-    const res=await fetch('https://corsproxy.io/?https://steamcommunity.com/id/spiderkaras');
-    const html=await res.text();
-    b.className='badge';
-    if(html.includes('Currently Online')||html.includes(' Online ')){
-      if(html.includes('In-Game')||html.includes('in-game')){
-        const gameMatch=html.match(/In-Game[\s\S]*?<[^>]+>([^<]+)</);
-        b.classList.add('s-on');
-        txt.textContent='🎮 '+(gameMatch?gameMatch[1]:'В игре');
-      }else{
-        b.classList.add('s-on');
-        txt.textContent='🟢 Онлайн';
-      }
-    }else if(html.includes('Offline')){
-      b.classList.add('s-sl');
-      txt.textContent='🔴 Оффлайн';
-    }else{
-      b.classList.add('s-sl');
-      txt.textContent='🔴 Оффлайн';
-    }
-  }catch(e){
-    b.className='badge s-sl';
-    txt.textContent='🔴 Оффлайн';
-  }
+/* STATUS - по времени */
+function updateStatus(){
+  const mskH=(new Date().getUTCHours()+3)%24;
+  const b=document.getElementById('statBadge');
+  b.className='badge';
+  if(mskH>=3&&mskH<11){b.classList.add('s-sl');document.getElementById('statTxt').textContent='💤 Спит'}
+  else{b.classList.add('s-on');document.getElementById('statTxt').textContent='🟢 Онлайн'}
 }
-updateStatus();setInterval(updateStatus,30000);
+updateStatus();setInterval(updateStatus,60000);
 
 /* CLOCK */
 function pad(n){return String(n).padStart(2,'0')}
@@ -376,12 +357,6 @@ document.getElementById('brightnessSlider').addEventListener('input',e=>{
 });
 document.getElementById('volumeSlider').addEventListener('input',e=>{
   audio.volume=e.target.value/100;
-});
-
-/* DYNAMIC CURSOR */
-document.addEventListener('mousemove',e=>{
-  document.body.style.setProperty('--mx',e.clientX+'px');
-  document.body.style.setProperty('--my',e.clientY+'px');
 });
 
 /* FACTS */
