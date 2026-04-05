@@ -129,12 +129,47 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .cm-inner>*{position:relative;z-index:1}
 
 .cm-form{display:flex;flex-direction:column;gap:10px;padding:12px}
+.cm-user-row{display:flex;align-items:center;justify-content:space-between}
+.cm-user-info{display:flex;align-items:center;gap:8px}
+.cm-user-avatar{width:24px;height:24px;border-radius:50%;background:var(--a1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.cm-logout{font-size:11px;color:var(--t2);cursor:pointer;text-decoration:underline}
 .cm-input{background:var(--bb);border:1px solid var(--bbr);border-radius:12px;padding:12px;color:var(--t1);font-family:inherit;font-size:13px;outline:none;transition:border-color .3s}
 .cm-input:focus{border-color:var(--a1)}
 .cm-input::placeholder{color:var(--t2)}
+.cm-row{display:flex;gap:8px}
+.cm-row .cm-input{flex:1}
 .cm-btn{background:var(--a1);border:none;border-radius:10px;padding:10px 16px;color:#fff;font-weight:600;font-size:13px;cursor:pointer;transition:transform .2s,opacity .2s}
 .cm-btn:hover{transform:scale(1.02);opacity:.9}
 .cm-btn:active{transform:scale(0.98)}
+.cm-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.cm-list{display:flex;flex-direction:column;gap:10px;padding:0 12px 12px;max-height:400px;overflow-y:auto}
+.cm-item{background:var(--bb);border-radius:12px;padding:12px;border:1px solid var(--bbr)}
+.cm-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.cm-item-name{font-weight:700;color:var(--t1);font-size:13px}
+.cm-item-time{font-size:10px;color:var(--t2)}
+.cm-item-text{color:var(--t1);font-size:13px;line-height:1.4}
+.cm-item-actions{margin-top:8px;display:flex;gap:8px}
+.cm-reply-btn{font-size:11px;color:var(--a1);cursor:pointer;background:none;border:none}
+.cm-reply-btn:hover{text-decoration:underline}
+.cm-reply-form{margin-top:8px;display:flex;gap:6px}
+.cm-reply-form .cm-input{flex:1;padding:8px;font-size:12px}
+.cm-reply-form .cm-btn{padding:6px 12px;font-size:11px}
+.cm-reply-item{margin-top:8px;padding-left:12px;border-left:2px solid var(--a2)}
+.cm-empty{text-align:center;color:var(--t2);padding:20px;font-size:13px}
+.cm-spam{color:#ef4444;font-size:11px;margin-top:4px}
+
+/* Send Animation */
+.cm-send-anim{position:fixed;pointer-events:none;z-index:9999}
+.cm-send-anim svg{width:30px;height:30px;animation:sendDrop .8s ease-in forwards}
+@keyframes sendDrop{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(200px) scale(0.5)}}
+
+/* GIF Support */
+.cm-gif-btn{background:none;border:none;font-size:20px;cursor:pointer;opacity:.6;transition:opacity .2s}
+.cm-gif-btn:hover{opacity:1}
+.cm-gif-preview{max-width:150px;border-radius:8px;margin-top:6px;display:none}
+.cm-gif-preview.show{display:block}
+.cm-gif-row{display:flex;align-items:center;gap:6px;margin-top:6px}
 
 .cm-list{display:flex;flex-direction:column;gap:10px;padding:0 12px 12px;max-height:300px;overflow-y:auto}
 .cm-item{background:var(--bb);border-radius:12px;padding:12px;border:1px solid var(--bbr)}
@@ -333,8 +368,26 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   <div class="cm-title">💬 Комментарии</div>
   <div class="cm-inner">
     <div class="cm-form">
-      <input type="text" class="cm-input" id="cmName" placeholder="Имя">
-      <textarea class="cm-input" id="cmText" placeholder="Написать комментарий..." rows="3"></textarea>
+      <div class="cm-user-row" id="cmUserRow">
+        <div class="cm-user-info">
+          <div class="cm-user-avatar" id="cmUserAvatar">?</div>
+          <span class="cm-item-name" id="cmUserName">Гость</span>
+        </div>
+        <span class="cm-logout" id="cmLogout" style="display:none">Сменить</span>
+      </div>
+      <div id="cmLoginForm">
+        <div class="cm-row">
+          <input type="text" class="cm-input" id="cmName" placeholder="Имя">
+          <button class="cm-btn" id="cmLoginBtn">Войти</button>
+        </div>
+      </div>
+      <div class="cm-gif-row">
+        <button class="cm-gif-btn" id="cmGifBtn" title="GIF">🎬</button>
+        <input type="text" class="cm-input" id="cmGifUrl" placeholder="URL GIF (Giphy, Tenor...)" style="flex:1;display:none">
+      </div>
+      <img class="cm-gif-preview" id="cmGifPreview">
+      <textarea class="cm-input" id="cmText" placeholder="Написать комментарий..." rows="2"></textarea>
+      <div class="cm-spam" id="cmSpamMsg"></div>
       <button class="cm-btn" id="cmSubmit">Отправить</button>
     </div>
     <div class="cm-list" id="cmList"></div>
@@ -538,6 +591,20 @@ const cmName=document.getElementById('cmName');
 const cmText=document.getElementById('cmText');
 const cmSubmit=document.getElementById('cmSubmit');
 const cmList=document.getElementById('cmList');
+const cmLoginForm=document.getElementById('cmLoginForm');
+const cmUserRow=document.getElementById('cmUserRow');
+const cmUserName=document.getElementById('cmUserName');
+const cmUserAvatar=document.getElementById('cmUserAvatar');
+const cmLogout=document.getElementById('cmLogout');
+const cmLoginBtn=document.getElementById('cmLoginBtn');
+const cmSpamMsg=document.getElementById('cmSpamMsg');
+const cmGifBtn=document.getElementById('cmGifBtn');
+const cmGifUrl=document.getElementById('cmGifUrl');
+const cmGifPreview=document.getElementById('cmGifPreview');
+
+let currentUser=localStorage.getItem('cm_user')||'';
+let lastPostTime=0;
+const SPAM_DELAY=3000;
 
 function getPagePath(){
   let p=window.location.pathname;
@@ -546,34 +613,141 @@ function getPagePath(){
 }
 const cmPath=getPagePath();
 
+function initUser(){
+  if(currentUser){
+    cmLoginForm.style.display='none';
+    cmUserRow.style.display='flex';
+    cmLogout.style.display='block';
+    cmUserName.textContent=currentUser;
+    cmUserAvatar.textContent=currentUser.charAt(0).toUpperCase();
+  }else{
+    cmLoginForm.style.display='block';
+    cmUserRow.style.display='none';
+  }
+}
+
+cmLoginBtn.addEventListener('click',()=>{
+  const name=cmName.value.trim();
+  if(name&&name.length>=2){
+    currentUser=name;
+    localStorage.setItem('cm_user',name);
+    initUser();
+  }
+});
+
+cmLogout.addEventListener('click',()=>{
+  currentUser='';
+  localStorage.removeItem('cm_user');
+  initUser();
+});
+
+cmGifBtn.addEventListener('click',()=>{
+  cmGifUrl.style.display=cmGifUrl.style.display==='none'?'block':'none';
+});
+
+cmGifUrl.addEventListener('input',()=>{
+  const url=cmGifUrl.value.trim();
+  if(url&&(url.includes('.gif')||url.includes('giphy')||url.includes('tenor')||url.includes('media'))){
+    cmGifPreview.src=url;
+    cmGifPreview.classList.add('show');
+  }else{
+    cmGifPreview.classList.remove('show');
+  }
+});
+
+function showSendAnimation(x,y){
+  const anim=document.createElement('div');
+  anim.className='cm-send-anim';
+  anim.style.left=x+'px';
+  anim.style.top=y+'px';
+  anim.innerHTML='<svg viewBox="0 0 24 24"><path fill="var(--a1)" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
+  document.body.appendChild(anim);
+  setTimeout(()=>anim.remove(),800);
+}
+
 function formatDate(ts){
   const d=new Date(ts);
   return d.toLocaleDateString('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
+function checkSpam(text){
+  const now=Date.now();
+  if(now-lastPostTime<SPAM_DELAY)return'Подожди немного перед следующим комментарием!';
+  if(text.length<2)return'Слишком короткий комментарий';
+  if(text.length>500)return'Слишком длинный комментарий';
+  if(/(.)\1{5,}/i.test(text))return'Повторяющиеся символы';
+  const spamWords=['xxx','fuck','porn','spam','hentai'];
+  if(spamWords.some(w=>text.toLowerCase().includes(w)))return'Недопустимый контент';
+  return'';
+}
+
+function renderComments(arr){
+  if(!arr||arr.length===0){cmList.innerHTML='<div class="cm-empty">Пока нет комментариев</div>';return}
+  cmList.innerHTML=arr.slice(-10).reverse().map(c=>{
+    let repliesHtml='';
+    if(c.replies&&c.replies.length){
+      repliesHtml='<div class="cm-reply-item">'+c.replies.map(r=>`<div class="cm-item" style="padding:8px;margin-top:4px"><div class="cm-item-header"><span class="cm-item-name">${r.name}</span><span class="cm-item-time">${formatDate(r.time)}</span></div>${r.gif?'<img src="'+r.gif+'" style="max-width:120px;border-radius:6px;margin-top:4px">':''}<div class="cm-item-text">${r.text}</div></div>`).join('')+'</div>';
+    }
+    return`<div class="cm-item"><div class="cm-item-header"><span class="cm-item-name">${c.name}</span><span class="cm-item-time">${formatDate(c.time)}</span></div>${c.gif?'<img src="'+c.gif+'" style="max-width:150px;border-radius:8px;margin-top:6px">':''}<div class="cm-item-text">${c.text}</div><div class="cm-item-actions"><button class="cm-reply-btn" onclick="showReplyForm('${c.time}')">Ответить</button></div><div id="reply-${c.time}" style="display:none"></div>${repliesHtml}</div>`;
+  }).join('');
 }
 
 async function loadComments(){
   try{
     const res=await fetch(cmAPI+cmPath);
     const arr=await res.json();
-    if(!arr||arr.length===0){cmList.innerHTML='<div class="cm-empty">Пока нет комментариев</div>';return}
-    cmList.innerHTML=arr.slice(-10).reverse().map(c=>`<div class="cm-item"><div class="cm-item-header"><span class="cm-item-name">${c.name}</span><span class="cm-item-time">${formatDate(c.time)}</span></div><div class="cm-item-text">${c.text}</div></div>`).join('');
+    renderComments(arr);
   }catch(e){cmList.innerHTML='<div class="cm-empty">Ошибка загрузки</div>'}
 }
 
-cmSubmit.addEventListener('click',async()=>{
-  const name=cmName.value.trim()||'Анон';
-  const text=cmText.value.trim();
+window.showReplyForm=function(time){
+  const container=document.getElementById('reply-'+time);
+  if(container.innerHTML)return;
+  container.style.display='block';
+  container.innerHTML=`<div class="cm-reply-form"><input type="text" class="cm-input" id="reply-input-${time}" placeholder="Ответ..."><button class="cm-btn" onclick="sendReply('${time}')">→</button></div>`;
+};
+
+window.sendReply=async function(time){
+  const input=document.getElementById('reply-input-'+time);
+  const text=input.value.trim();
   if(!text)return;
+  const name=currentUser||'Анон';
+  try{
+    const res=await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,replyTo:time})});
+    if(res.ok){
+      input.value='';
+      document.getElementById('reply-'+time).innerHTML='';
+      await loadComments();
+    }
+  }catch(e){alert('Ошибка отправки')}
+};
+
+cmSubmit.addEventListener('click',async(e)=>{
+  const name=currentUser||'Анон';
+  const text=cmText.value.trim();
+  const gif=cmGifPreview.src||'';
+  const spam=checkSpam(text);
+  if(spam&&!gif){cmSpamMsg.textContent=spam;return;}
+  cmSpamMsg.textContent='';
+  lastPostTime=Date.now();
   cmSubmit.disabled=true;
   cmSubmit.textContent='...';
+  
+  showSendAnimation(e.clientX,e.clientY);
+  
   try{
-    await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text})});
+    await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,gif})});
     cmText.value='';
+    cmGifUrl.value='';
+    cmGifPreview.classList.remove('show');
+    cmGifPreview.src='';
     await loadComments();
-  }catch(e){alert('Ошибка отправки')}
+  }catch(e){cmSpamMsg.textContent='Ошибка отправки'}
   cmSubmit.disabled=false;
   cmSubmit.textContent='Отправить';
 });
+
+initUser();
 loadComments();
 
 /* FACTS */
