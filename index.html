@@ -127,7 +127,22 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .cm-inner{border-radius:24px;overflow:hidden;position:relative;background:var(--gb);border:1px solid var(--gbr)}
 .cm-inner::before{content:'';position:absolute;inset:0;background:linear-gradient(140deg,rgba(255,255,255,0.05) 0%,transparent 60%);pointer-events:none;z-index:0;border-radius:inherit}
 .cm-inner>*{position:relative;z-index:1}
-.giscus,.giscus-frame{width:100%;border:none}
+
+.cm-form{display:flex;flex-direction:column;gap:10px;padding:12px}
+.cm-input{background:var(--bb);border:1px solid var(--bbr);border-radius:12px;padding:12px;color:var(--t1);font-family:inherit;font-size:13px;outline:none;transition:border-color .3s}
+.cm-input:focus{border-color:var(--a1)}
+.cm-input::placeholder{color:var(--t2)}
+.cm-btn{background:var(--a1);border:none;border-radius:10px;padding:10px 16px;color:#fff;font-weight:600;font-size:13px;cursor:pointer;transition:transform .2s,opacity .2s}
+.cm-btn:hover{transform:scale(1.02);opacity:.9}
+.cm-btn:active{transform:scale(0.98)}
+
+.cm-list{display:flex;flex-direction:column;gap:10px;padding:0 12px 12px;max-height:300px;overflow-y:auto}
+.cm-item{background:var(--bb);border-radius:12px;padding:12px;border:1px solid var(--bbr)}
+.cm-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.cm-item-name{font-weight:700;color:var(--t1);font-size:13px}
+.cm-item-time{font-size:10px;color:var(--t2)}
+.cm-item-text{color:var(--t1);font-size:13px;line-height:1.4}
+.cm-empty{text-align:center;color:var(--t2);padding:20px;font-size:13px}
 
 .foot{font-size:10.5px;color:var(--t2);text-align:center;padding-top:4px;transition:color .5s;letter-spacing:.4px}
 
@@ -317,23 +332,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 <div class="glass cm-card">
   <div class="cm-title">💬 Комментарии</div>
   <div class="cm-inner">
-    <script src="https://giscus.app/client.js"
-        data-repo="spiderkarasio/mybio"
-        data-repo-id="R_kgDOR59STg"
-        data-category="General"
-        data-category-id="DIC_kwDOR59STs4C6EZ3"
-        data-mapping="pathname"
-        data-strict="0"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="bottom"
-        data-theme="preferred_color_scheme"
-        data-lang="ru"
-        crossorigin="anonymous"
-        async>
-    </script>
+    <div class="cm-form">
+      <input type="text" class="cm-input" id="cmName" placeholder="Имя">
+      <textarea class="cm-input" id="cmText" placeholder="Написать комментарий..." rows="3"></textarea>
+      <button class="cm-btn" id="cmSubmit">Отправить</button>
+    </div>
+    <div class="cm-list" id="cmList"></div>
   </div>
-
 </div>
 
 <div class="foot">made with 🕷️ · spidorkaras</div>
@@ -526,6 +531,43 @@ document.getElementById('brightnessSlider').addEventListener('input',e=>{
 document.getElementById('volumeSlider').addEventListener('input',e=>{
   audio.volume=e.target.value/100;
 });
+
+/* COMMENTS - Cloudflare Worker */
+const cmAPI='https://mybio.spiderkaras.workers.dev/api/';
+const cmName=document.getElementById('cmName');
+const cmText=document.getElementById('cmText');
+const cmSubmit=document.getElementById('cmSubmit');
+const cmList=document.getElementById('cmList');
+
+function formatDate(ts){
+  const d=new Date(ts);
+  return d.toLocaleDateString('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
+async function loadComments(){
+  try{
+    const res=await fetch(cmAPI+window.location.pathname);
+    const arr=await res.json();
+    if(!arr||arr.length===0){cmList.innerHTML='<div class="cm-empty">Пока нет комментариев</div>';return}
+    cmList.innerHTML=arr.slice(-10).reverse().map(c=>`<div class="cm-item"><div class="cm-item-header"><span class="cm-item-name">${c.name}</span><span class="cm-item-time">${formatDate(c.time)}</span></div><div class="cm-item-text">${c.text}</div></div>`).join('');
+  }catch(e){cmList.innerHTML='<div class="cm-empty">Ошибка загрузки</div>'}
+}
+
+cmSubmit.addEventListener('click',async()=>{
+  const name=cmName.value.trim()||'Анон';
+  const text=cmText.value.trim();
+  if(!text)return;
+  cmSubmit.disabled=true;
+  cmSubmit.textContent='...';
+  try{
+    await fetch(cmAPI+window.location.pathname,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text})});
+    cmText.value='';
+    await loadComments();
+  }catch(e){alert('Ошибка отправки')}
+  cmSubmit.disabled=false;
+  cmSubmit.textContent='Отправить';
+});
+loadComments();
 
 /* FACTS */
 const factsList=[
