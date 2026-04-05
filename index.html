@@ -399,8 +399,12 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
         <input type="text" class="cm-input" id="cmGifUrl" placeholder="URL GIF..." style="flex:1;display:none">
       </div>
       <img class="cm-gif-preview" id="cmGifPreview">
+      <div class="cm-spam" id="cmStatusMsg"></div>
       <div class="cm-spam" id="cmSpamMsg"></div>
-      <button class="cm-btn" id="cmSubmit">Отправить как гость</button>
+      <div style="display:flex;gap:6px">
+        <button class="cm-btn" id="cmRegisterBtn" style="flex:1;background:var(--bb);border:1px solid var(--bbr);color:var(--t1)">Зарегистрироваться</button>
+        <button class="cm-btn" id="cmSubmit" style="flex:1">Отправить как гость</button>
+      </div>
     </div>
     <div class="cm-user-panel" id="cmUserPanel" style="display:none">
       <div class="cm-user-info">
@@ -418,7 +422,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
       <button class="cm-btn" id="cmSubmitAuth">Отправить</button>
     </div>
     <div class="cm-list" id="cmList"></div>
-    <div class="cm-clear" id="cmClear">Очистить чат</div>
   </div>
 </div>
 
@@ -638,11 +641,8 @@ const cmGifUrlAuth=document.getElementById('cmGifUrlAuth');
 const cmGifPreviewAuth=document.getElementById('cmGifPreviewAuth');
 const cmSpamMsg=document.getElementById('cmSpamMsg');
 const cmSpamMsgAuth=document.getElementById('cmSpamMsgAuth');
-const cmClear=document.getElementById('cmClear');
 const cmStatusMsg=document.getElementById('cmStatusMsg');
 
-const ADMIN_PASS='cckaras2007';
-const ADMIN_USER='spiderkaras';
 const PENDING_KEY='cm_pending';
 const USERS_KEY='cm_users';
 
@@ -660,7 +660,7 @@ const cmPath=getPagePath();
 
 function getPending(){try{return JSON.parse(localStorage.getItem(PENDING_KEY)||'[]')}catch{return[]}}
 function savePending(p){localStorage.setItem(PENDING_KEY,JSON.stringify(p))}
-function getUsers(){try{return JSON.parse(localStorage.getItem(USERS_KEY)||'{}')}catch{return{}}
+function getUsers(){try{return JSON.parse(localStorage.getItem(USERS_KEY)||'{}')}catch(e){return{}}}
 function saveUsers(u){localStorage.setItem(USERS_KEY,JSON.stringify(u))}
 
 function checkAuth(){
@@ -669,7 +669,6 @@ function checkAuth(){
     const users=getUsers();
     const user=users[saved];
     if(user&&user.approved){currentUser=saved;currentUserName=user.name;showUserPanel(user.name);return}
-    if(saved===ADMIN_USER&&cmPassInput.value===ADMIN_PASS){currentUser=ADMIN_USER;currentUserName=ADMIN_USER;showUserPanel(ADMIN_USER);return}
   }
   cmAuthForm.style.display='block';
   cmUserPanel.style.display='none';
@@ -680,23 +679,6 @@ cmLoginBtn.addEventListener('click',async()=>{
   const pass=cmPassInput.value;
   if(!login||!pass){cmStatusMsg.textContent='Заполни все поля';return}
   
-  // Admin login
-  if(login===ADMIN_USER&&pass===ADMIN_PASS){
-    currentUser=ADMIN_USER;
-    currentUserName=ADMIN_USER;
-    localStorage.setItem('cm_session',ADMIN_USER);
-    showUserPanel(ADMIN_USER);
-    cmStatusMsg.textContent='';
-    return;
-  }
-  
-  // Check pending requests
-  const pending=getPending().find(p=>p.login===login&&p.pass===pass);
-  if(pending){
-    cmStatusMsg.textContent='Твоя заявка на рассмотрении. Ожидай подтверждения!';
-    return;
-  }
-  
   // Check approved users
   const users=getUsers();
   if(users[login]&&users[login].pass===pass&&users[login].approved){
@@ -705,33 +687,32 @@ cmLoginBtn.addEventListener('click',async()=>{
     localStorage.setItem('cm_session',login);
     showUserPanel(users[login].name);
     cmStatusMsg.textContent='';
+  }else if(users[login]&&users[login].pass===pass&&!users[login].approved){
+    cmStatusMsg.textContent='Твой аккаунт ещё ожидает одобрения';
   }else{
-    cmStatusMsg.textContent='Неверный логин/пароль или аккаунт не одобрен';
+    cmStatusMsg.textContent='Неверный логин или пароль';
   }
 });
 
 cmRegisterBtn.addEventListener('click',async()=>{
   const login=cmLoginInput.value.trim();
   const pass=cmPassInput.value;
-  const name=cmGuestName.value.trim();
-  if(!login||!pass||!name){cmStatusMsg.textContent='Заполни все поля';return}
-  if(pass===ADMIN_PASS){cmStatusMsg.textContent='Этот пароль заблокирован';return}
+  const name=cmGuestName.value.trim()||login;
+  if(!login||!pass){cmStatusMsg.textContent='Введи логин и пароль';return}
+  if(login.length<3){cmStatusMsg.textContent='Логин слишком короткий';return}
+  if(pass.length<4){cmStatusMsg.textContent='Пароль слишком короткий (мин. 4 символа)';return}
   
   const users=getUsers();
   if(users[login]){cmStatusMsg.textContent='Логин уже занят';return}
   
-  const pending=getPending();
-  if(pending.find(p=>p.login===login)){cmStatusMsg.textContent='Заявка уже отправлена';return}
-  
-  pending.push({login,pass,name,time:Date.now()});
-  savePending(pending);
-  
-  cmStatusMsg.textContent='Заявка отправлена! Ожидай одобрения от админа.';
-  
-  // Send to worker for admin notification
-  try{
-    await fetch(cmAPI+'pending',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login,name,time:Date.now()})});
-  }catch(e){}
+  // Auto-approve registration
+  users[login]={pass,name:name||login,approved:true,time:Date.now()};
+  saveUsers(users);
+  currentUser=login;
+  currentUserName=name||login;
+  localStorage.setItem('cm_session',login);
+  showUserPanel(name||login);
+  cmStatusMsg.textContent='';
 });
 
 function showUserPanel(name){
@@ -810,23 +791,13 @@ function renderComments(arr,hasNew){
     if(c.replies&&c.replies.length){
       repliesHtml='<div class="cm-reply-item">'+c.replies.map(r=>{
         const gifHtml=r.gif?`<img src="${r.gif}" class="cm-sticker" loading="lazy" alt="GIF" onerror="this.style.display='none'">`:'';
-        const delBtn=(currentUser===ADMIN_USER)?`<span class="cm-delete" onclick="deleteComment('${c.time}','${r.time}')">🗑️</span>`:'';
-        return`<div class="cm-item" style="padding:8px;margin-top:4px"><div class="cm-item-header"><span class="cm-item-name">${r.name}</span><span class="cm-item-time">${formatDate(r.time)}</span>${delBtn}</div>${gifHtml}<div class="cm-item-text">${r.text}</div></div>`;
+        return`<div class="cm-item" style="padding:8px;margin-top:4px"><div class="cm-item-header"><span class="cm-item-name">${r.name}</span><span class="cm-item-time">${formatDate(r.time)}</span></div>${gifHtml}<div class="cm-item-text">${r.text}</div></div>`;
       }).join('')+'</div>';
     }
     const gifHtml=c.gif?`<img src="${c.gif}" class="cm-sticker" loading="lazy" alt="GIF" onerror="this.style.display='none'">`:'';
-    const delBtn=(currentUser===ADMIN_USER)?`<span class="cm-delete" onclick="deleteComment('${c.time}','')">🗑️</span>`:'';
-    return`<div class="cm-item${i===0&&hasNew?newClass:''}"><div class="cm-item-header"><span class="cm-item-name">${c.name}</span><span class="cm-item-time">${formatDate(c.time)}</span>${delBtn}</div>${gifHtml}<div class="cm-item-text">${c.text}</div><div class="cm-item-actions"><button class="cm-reply-btn" onclick="showReplyForm('${c.time}')">Ответить</button></div><div id="reply-${c.time}" style="display:none"></div>${repliesHtml}</div>`;
+    return`<div class="cm-item${i===0&&hasNew?newClass:''}"><div class="cm-item-header"><span class="cm-item-name">${c.name}</span><span class="cm-item-time">${formatDate(c.time)}</span></div>${gifHtml}<div class="cm-item-text">${c.text}</div><div class="cm-item-actions"><button class="cm-reply-btn" onclick="showReplyForm('${c.time}')">Ответить</button></div><div id="reply-${c.time}" style="display:none"></div>${repliesHtml}</div>`;
   }).join('');
 }
-
-window.deleteComment=async function(time,replyTime){
-  if(!confirm('Удалить сообщение?'))return;
-  try{
-    await fetch(cmAPI+cmPath+'/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({time,replyTime})});
-    await loadComments();
-  }catch(e){alert('Ошибка')}
-};
 
 window.showReplyForm=function(time){
   const container=document.getElementById('reply-'+time);
@@ -894,159 +865,9 @@ cmSubmitAuth.addEventListener('click',async(e)=>{
   cmSubmitAuth.textContent='Отправить';
 });
 
-cmClear.addEventListener('click',async()=>{
-  if(currentUser!==ADMIN_USER){
-    cmClear.style.display='none';
-    return;
-  }
-  const pass=prompt('Пароль для очистки чата:');
-  if(pass===ADMIN_PASS){
-    if(confirm('Очистить все комментарии?')){
-      try{
-        await fetch(cmAPI+cmPath,{method:'DELETE',headers:{'Content-Type':'application/json'}});
-        await loadComments();
-      }catch(e){alert('Ошибка')}
-    }
-  }else if(pass){alert('Неверный пароль!')}
-});
-
 checkAuth();
 loadComments();
 setInterval(loadComments,5000);
-
-cmGifUrl.addEventListener('input',()=>{
-  const url=cmGifUrl.value.trim();
-  const isGif=url&&(url.includes('.gif')||url.includes('giphy')||url.includes('tenor')||url.includes('media')||url.includes('discord')||url.includes('cdn.discordapp')||url.includes('media.discord'));
-  if(isGif){
-    cmGifPreview.src=url;
-    cmGifPreview.classList.add('show');
-  }else{
-    cmGifPreview.classList.remove('show');
-  }
-});
-
-function showSendAnimation(x,y){
-  const anim=document.createElement('div');
-  anim.className='cm-send-anim';
-  anim.style.left=x+'px';
-  anim.style.top=y+'px';
-  anim.innerHTML='<svg viewBox="0 0 24 24"><path fill="var(--a1)" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
-  document.body.appendChild(anim);
-  setTimeout(()=>anim.remove(),800);
-}
-
-function formatDate(ts){
-  const d=new Date(ts);
-  return d.toLocaleDateString('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-}
-
-function checkSpam(text){
-  const now=Date.now();
-  if(now-lastPostTime<SPAM_DELAY)return'Подожди немного перед следующим комментарием!';
-  if(text.length<2)return'Слишком короткий комментарий';
-  if(text.length>500)return'Слишком длинный комментарий';
-  if(/(.)\1{5,}/i.test(text))return'Повторяющиеся символы';
-  const spamWords=['xxx','fuck','porn','spam','hentai'];
-  if(spamWords.some(w=>text.toLowerCase().includes(w)))return'Недопустимый контент';
-  return'';
-}
-
-let lastComments=[];
-async function loadComments(){
-  try{
-    const res=await fetch(cmAPI+cmPath);
-    const arr=await res.json();
-    const wasEmpty=lastComments.length===0;
-    const hasNew=arr.length>lastComments.length;
-    lastComments=arr;
-    renderComments(arr,hasNew&&!wasEmpty);
-  }catch(e){cmList.innerHTML='<div class="cm-empty">Ошибка загрузки</div>'}
-}
-
-function renderComments(arr,hasNew){
-  if(!arr||arr.length===0){cmList.innerHTML='<div class="cm-empty">Пока нет комментариев</div>';return}
-  const newClass=hasNew?' cm-item-new':'';
-  cmList.innerHTML=arr.slice(-10).reverse().map((c,i)=>{
-    let repliesHtml='';
-    if(c.replies&&c.replies.length){
-      repliesHtml='<div class="cm-reply-item">'+c.replies.map(r=>{
-        const gifHtml=r.gif?`<img src="${r.gif}" loading="lazy" class="cm-sticker" alt="GIF" onerror="this.style.display='none'">`:'';
-        return`<div class="cm-item" style="padding:8px;margin-top:4px"><div class="cm-item-header"><span class="cm-item-name">${r.name}</span><span class="cm-item-time">${formatDate(r.time)}</span></div>${gifHtml}<div class="cm-item-text">${r.text}</div></div>`;
-      }).join('')+'</div>';
-    }
-    const gifHtml=c.gif?`<img src="${c.gif}" loading="lazy" class="cm-sticker" alt="GIF" onerror="this.style.display='none'" style="max-width:80px;max-height:80px;border-radius:8px;margin-top:8px">`:'';
-    return`<div class="cm-item${i===0&&hasNew?newClass:''}"><div class="cm-item-header"><span class="cm-item-name">${c.name}</span><span class="cm-item-time">${formatDate(c.time)}</span></div>${gifHtml}<div class="cm-item-text">${c.text}</div><div class="cm-item-actions"><button class="cm-reply-btn" onclick="showReplyForm('${c.time}')">Ответить</button></div><div id="reply-${c.time}" style="display:none"></div>${repliesHtml}</div>`;
-  }).join('');
-}
-
-window.showReplyForm=function(time){
-  const container=document.getElementById('reply-'+time);
-  if(container.innerHTML)return;
-  container.style.display='block';
-  container.innerHTML=`<div class="cm-reply-form"><input type="text" class="cm-input" id="reply-input-${time}" placeholder="Ответ..."><button class="cm-btn" onclick="sendReply('${time}')">→</button></div>`;
-};
-
-window.sendReply=async function(time){
-  const input=document.getElementById('reply-input-'+time);
-  const text=input.value.trim();
-  if(!text)return;
-  const name=cmName.value.trim()||'Анон';
-  try{
-    const res=await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,replyTo:time})});
-    if(res.ok){
-      input.value='';
-      document.getElementById('reply-'+time).innerHTML='';
-      await loadComments();
-    }
-  }catch(e){alert('Ошибка отправки')}
-};
-
-cmSubmit.addEventListener('click',async(e)=>{
-  const name=cmName.value.trim()||'Анон';
-  const text=cmText.value.trim();
-  const gif=cmGifPreview.src||'';
-  const spam=checkSpam(text);
-  if(spam&&!gif){cmSpamMsg.textContent=spam;return;}
-  cmSpamMsg.textContent='';
-  lastPostTime=Date.now();
-  cmSubmit.disabled=true;
-  cmSubmit.textContent='...';
-  
-  showSendAnimation(e.clientX,e.clientY);
-  
-  try{
-    await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,gif})});
-    cmText.value='';
-    cmGifUrl.value='';
-    cmGifPreview.classList.remove('show');
-    cmGifPreview.src='';
-    initUser();
-    await loadComments();
-  }catch(e){cmSpamMsg.textContent='Ошибка отправки'}
-  cmSubmit.disabled=false;
-  cmSubmit.textContent='Отправить';
-});
-
-loadComments();
-
-setInterval(loadComments,5000);
-
-const cmClear=document.getElementById('cmClear');
-const ADMIN_PASS='cckaras2007';
-
-cmClear.addEventListener('click',async()=>{
-  const pass=prompt('Введи пароль для очистки чата:');
-  if(pass===ADMIN_PASS){
-    if(confirm('Очистить все комментарии?')){
-      try{
-        await fetch(cmAPI+cmPath,{method:'DELETE',headers:{'Content-Type':'application/json'}});
-        await loadComments();
-      }catch(e){alert('Ошибка')}
-    }
-  }else if(pass){
-    alert('Неверный пароль!');
-  }
-});
 
 /* FACTS */
 const factsList=[
