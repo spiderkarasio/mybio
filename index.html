@@ -52,7 +52,7 @@ a,button,.sb,.glass{cursor:pointer}
 .av{width:82px;height:82px;border-radius:20px;background:linear-gradient(145deg,var(--a1),var(--a2));display:flex;align-items:center;justify-content:center;font-size:34px;position:relative;overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,.38);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
 .av-label:hover .av{transform:scale(1.07) rotate(-2deg)}
 .av::after{content:'';position:absolute;inset:0;border:1.5px solid rgba(255,255,255,.22);border-radius:inherit;pointer-events:none;z-index:2}
-#avImg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;display:none;z-index:1}
+#avImg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;z-index:1}
 .av-overlay{position:absolute;inset:0;border-radius:18px;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;opacity:0;transition:opacity .2s;z-index:3}
 .av-label:hover .av-overlay{opacity:1}
 .av-overlay svg{width:18px;height:18px;fill:#fff}
@@ -135,6 +135,34 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .fact-output{padding:0 20px;border-radius:20px;background:var(--bb);border:1px solid var(--bbr);color:var(--t1);font-size:14px;word-wrap:break-word;max-height:0;overflow:hidden;opacity:0;transform:scale(0.95);transition:all .3s ease}
 .fact-output.show{max-height:200px;padding:16px 20px;opacity:1;transform:scale(1)}
 
+.m-card{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.m-row{display:flex;align-items:center;gap:12px}
+.m-btn{width:44px;height:44px;border-radius:50%;background:var(--a1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s;flex-shrink:0}
+.m-btn:hover{transform:scale(1.1)}
+.m-btn:active{transform:scale(0.95)}
+.m-btn svg{width:20px;height:20px;fill:#fff}
+.m-info{flex:1;min-width:0}
+.m-title{font-size:14px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-artist{font-size:11px;color:var(--t2);margin-top:2px}
+.m-progress{width:100%;display:flex;align-items:center;gap:8px}
+.m-progress input[type=range]{flex:1;height:4px;border-radius:2px;background:var(--sb);cursor:pointer}
+.m-time{font-size:10px;color:var(--t2);font-variant-numeric:tabular-nums;min-width:35px}
+.m-eq{display:flex;justify-content:center;gap:3px;height:20px;align-items:flex-end}
+.m-eq span{width:4px;background:var(--a1);border-radius:2px;height:20%;animation:eqBar .4s ease-in-out infinite}
+.m-eq.play span{animation-play-state:running}
+.m-eq:not(.play) span{animation-play-state:paused;height:20% !important}
+@keyframes eqBar{0%,100%{height:20%}25%{height:80%}50%{height:100%}75%{height:60%}}
+
+/* SHAKE EFFECT - applied inline to music card */
+
+/* PULSE */
+.pulse{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+/* GLOW PULSE */
+.glow{animation:glow 2s ease-in-out infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 10px var(--a1)}50%{box-shadow:0 0 25px var(--a1),0 0 40px var(--a2)}}
+
 /* ── ENTRANCE ANIMATIONS ── */
 .stack>*{opacity:0;transform:translateY(28px) scale(.97);animation:fadeUp .6s cubic-bezier(.22,1,.36,1) forwards}
 .stack>*:nth-child(1){animation-delay:.05s}
@@ -145,6 +173,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .stack>*:nth-child(6){animation-delay:.44s}
 .stack>*:nth-child(7){animation-delay:.51s}
 .stack>*:nth-child(8){animation-delay:.58s}
+.stack>*:nth-child(9){animation-delay:.65s}
+.stack>*:nth-child(10){animation-delay:.72s}
 @keyframes fadeUp{to{opacity:1;transform:translateY(0) scale(1)}}
 
 @media(max-width:480px){
@@ -240,8 +270,42 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
     </div>
   </div>
   <button class="pal-btn" id="palBtn"><svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></button>
-<button class="pal-btn" id="musicBtn"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></button>
 </div>
+
+<!-- MUSIC PLAYER -->
+<div class="glass m-card" id="musicCard" style="overflow:visible">
+  <div class="m-row">
+    <button class="m-btn" id="mPlayBtn" style="position:relative;z-index:10">
+      <svg id="mPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="mPauseIcon" style="display:none;position:relative;z-index:10" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+    </button>
+    <div class="m-info">
+      <div class="m-title" id="mTitle">Water Resistant</div>
+      <div class="m-artist" id="mArtist">Anamanaguchi</div>
+    </div>
+  </div>
+  <div class="m-progress">
+    <span class="m-time" id="mCurTime">0:00</span>
+    <input type="range" min="0" max="100" value="0" id="mSeek" style="position:relative;z-index:10">
+    <span class="m-time" id="mDurTime">0:00</span>
+  </div>
+  <div class="m-eq" id="mEq" style="position:relative;z-index:10">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+</div>
+
+<style>
+@keyframes shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  20% { transform: translateX(-8px) rotate(-3deg); }
+  40% { transform: translateX(8px) rotate(3deg); }
+  60% { transform: translateX(-5px) rotate(-2deg); }
+  80% { transform: translateX(5px) rotate(2deg); }
+}
+.shake-anim {
+  animation: shake 0.4s ease-in-out;
+}
+</style>
 
 <!-- FACTS -->
 <button class="glass fact-btn" id="factBtn">🎲 Случайный факт</button>
@@ -305,18 +369,18 @@ document.querySelectorAll('.sb').forEach(b=>b.addEventListener('click',function(
   this.appendChild(s);setTimeout(()=>s.remove(),600);
 }));
 
-/* AVATAR - Static only */
+/* AVATAR */
 const avImg=document.getElementById('avImg'),avEmoji=document.getElementById('avEmoji');
-avImg.onerror=function(){avEmoji.style.display='flex'};
-avImg.src='avatar.png';
-setTimeout(()=>{if(avImg.naturalWidth===0)avEmoji.style.display='flex'},3000);
+avImg.onload=function(){avEmoji.style.display='none';avImg.style.display='block'};
+avImg.onerror=function(){avEmoji.style.display='flex';avImg.style.display='none'};
+avImg.src='https://raw.githubusercontent.com/spiderkarasio/mybio/main/picture.png';
 
-/* STATUS - по времени */
+/* STATUS - по локальному времени пользователя */
 function updateStatus(){
-  const mskH=(new Date().getUTCHours()+3)%24;
+  const h=new Date().getHours();
   const b=document.getElementById('statBadge');
   b.className='badge';
-  if(mskH>=3&&mskH<11){b.classList.add('s-sl');document.getElementById('statTxt').textContent='💤 Спит'}
+  if(h>=3&&h<11){b.classList.add('s-sl');document.getElementById('statTxt').textContent='💤 Спит'}
   else{b.classList.add('s-on');document.getElementById('statTxt').textContent='🟢 Онлайн'}
 }
 updateStatus();setInterval(updateStatus,60000);
@@ -327,10 +391,13 @@ function pad(n){return String(n).padStart(2,'0')}
 /* CLOCK - Simplified */
 function updateClocks(){
   const now=new Date();
-  const msk=new Date(now.getTime()+(3*60*60*1000));
-  document.getElementById('mH').textContent=pad(msk.getHours());
-  document.getElementById('mM').textContent=pad(msk.getMinutes());
-  document.getElementById('mS').textContent=pad(msk.getSeconds());
+  const localOffset=-now.getTimezoneOffset()/60;
+  let mskHours=now.getHours();
+  const diff=3-localOffset;
+  mskHours=(mskHours+diff+24)%24;
+  document.getElementById('mH').textContent=pad(mskHours);
+  document.getElementById('mM').textContent=pad(now.getMinutes());
+  document.getElementById('mS').textContent=pad(now.getSeconds());
   document.getElementById('vH').textContent=pad(now.getHours());
   document.getElementById('vM').textContent=pad(now.getMinutes());
   document.getElementById('vS').textContent=pad(now.getSeconds());
@@ -360,11 +427,74 @@ setInterval(()=>{
 
 /* MUSIC PLAYER */
 let audio=new Audio(),isPlaying=false;
-function toggleMusic(){
-  if(!audio.src){audio.src='https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT?si=demo';audio.volume=0.6}
-  if(isPlaying){audio.pause();isPlaying=false}else{audio.play().catch(()=>{});isPlaying=true}
+const mPlayBtn=document.getElementById('mPlayBtn'),mSeek=document.getElementById('mSeek'),mEq=document.getElementById('mEq');
+const mPlayIcon=document.getElementById('mPlayIcon'),mPauseIcon=document.getElementById('mPauseIcon');
+const mCurTime=document.getElementById('mCurTime'),mDurTime=document.getElementById('mDurTime');
+const musicCard=document.getElementById('musicCard');
+
+audio.src='https://raw.githubusercontent.com/spiderkarasio/mybio/main/SpotiDownloader.com%20-%20Water%20Resistant%20-%20Anamanaguchi.mp3';
+audio.volume=0.6;
+
+function formatTime(s){
+  if(isNaN(s))return'0:00';
+  const m=Math.floor(s/60);
+  const sc=Math.floor(s%60);
+  return m+':'+(sc<10?'0':'')+sc;
 }
-document.getElementById('musicBtn').addEventListener('click',toggleMusic);
+
+function toggleMusic(){
+  if(isPlaying){
+    audio.pause();
+    isPlaying=false;
+    mPlayIcon.style.display='block';
+    mPauseIcon.style.display='none';
+    mEq.classList.remove('play');
+    musicCard.classList.remove('shake-anim');
+    document.querySelector('.av-glow').style.animationDuration='4s';
+    document.querySelector('.av-glow').style.opacity='0.22';
+  }else{
+    audio.play().catch(()=>{});
+    isPlaying=true;
+    mPlayIcon.style.display='none';
+    mPauseIcon.style.display='block';
+    mEq.classList.add('play');
+    musicCard.classList.add('shake-anim');
+    document.querySelector('.av-glow').style.animationDuration='1s';
+    document.querySelector('.av-glow').style.opacity='0.6';
+    setTimeout(()=>musicCard.classList.remove('shake-anim'),400);
+  }
+}
+
+audio.addEventListener('timeupdate',()=>{
+  if(audio.duration){
+    mSeek.value=(audio.currentTime/audio.duration)*100;
+    mCurTime.textContent=formatTime(audio.currentTime);
+  }
+});
+
+audio.addEventListener('loadedmetadata',()=>{
+  mDurTime.textContent=formatTime(audio.duration);
+});
+
+mSeek.addEventListener('input',()=>{
+  if(audio.duration){
+    audio.currentTime=(mSeek.value/100)*audio.duration;
+  }
+});
+
+audio.addEventListener('ended',()=>{
+  isPlaying=false;
+  mPlayIcon.style.display='block';
+  mPauseIcon.style.display='none';
+  mEq.classList.remove('play');
+  mSeek.value=0;
+  mCurTime.textContent='0:00';
+  musicCard.classList.remove('shake-anim');
+  document.querySelector('.av-glow').style.animationDuration='4s';
+  document.querySelector('.av-glow').style.opacity='0.22';
+});
+
+mPlayBtn.addEventListener('click',toggleMusic);
 
 /* SLIDERS */
 document.getElementById('brightnessSlider').addEventListener('input',e=>{
