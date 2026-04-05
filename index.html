@@ -311,28 +311,25 @@ updateStatus();setInterval(updateStatus,60000);
 
 /* CLOCK */
 function pad(n){return String(n).padStart(2,'0')}
-function pop(el){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}
-let pmS='',pvS='';
-function tick(){
+
+/* CLOCK - Simplified */
+function updateClocks(){
   const now=new Date();
-  const utcMs=now.getTime()+now.getTimezoneOffset()*60000;
-  const msk=new Date(utcMs+3*3600000);
+  const msk=new Date(now.getTime()+(3*60*60*1000));
   document.getElementById('mH').textContent=pad(msk.getHours());
   document.getElementById('mM').textContent=pad(msk.getMinutes());
-  const ms=pad(msk.getSeconds()),mSel=document.getElementById('mS');
-  if(ms!==pmS){mSel.textContent=ms;pop(mSel);pmS=ms}
+  document.getElementById('mS').textContent=pad(msk.getSeconds());
   document.getElementById('vH').textContent=pad(now.getHours());
   document.getElementById('vM').textContent=pad(now.getMinutes());
-  const vs=pad(now.getSeconds()),vSel=document.getElementById('vS');
-  if(vs!==pvS){vSel.textContent=vs;pop(vSel);pvS=vs}
+  document.getElementById('vS').textContent=pad(now.getSeconds());
 }
 (function setVTZ(){
   const off=-new Date().getTimezoneOffset()/60;
   const s=off>=0?'+':'';
-  try{const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;document.getElementById('vTZ').textContent=`${tz} · UTC${s}${off}`}
-  catch(e){document.getElementById('vTZ').textContent=`UTC${s}${off}`}
+  try{const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;document.getElementById('vTZ').textContent=tz+' · UTC'+s+off}
+  catch(e){document.getElementById('vTZ').textContent='UTC'+s+off}
 })();
-tick();setInterval(tick,1000);
+updateClocks();setInterval(updateClocks,1000);
 
 /* USERNAME ROTATION */
 const names=['@spidorkaras','@spiderkaras','@spiderkarasxd'];
