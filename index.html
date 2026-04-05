@@ -532,12 +532,19 @@ document.getElementById('volumeSlider').addEventListener('input',e=>{
   audio.volume=e.target.value/100;
 });
 
-/* COMMENTS - Cloudflare Worker */
-const cmAPI='https://mybio.spiderkaras.workers.dev/api/';
+/* COMMENTS - Cloudflare KV */
+const cmAPI='https://mybio.spiderkaras.workers.dev/';
 const cmName=document.getElementById('cmName');
 const cmText=document.getElementById('cmText');
 const cmSubmit=document.getElementById('cmSubmit');
 const cmList=document.getElementById('cmList');
+
+function getPagePath(){
+  let p=window.location.pathname;
+  if(p==='/'||p===''||p.startsWith('file'))p='home';
+  return p.replace(/[^a-zA-Z0-9]/g,'_');
+}
+const cmPath=getPagePath();
 
 function formatDate(ts){
   const d=new Date(ts);
@@ -546,7 +553,7 @@ function formatDate(ts){
 
 async function loadComments(){
   try{
-    const res=await fetch(cmAPI+window.location.pathname);
+    const res=await fetch(cmAPI+cmPath);
     const arr=await res.json();
     if(!arr||arr.length===0){cmList.innerHTML='<div class="cm-empty">Пока нет комментариев</div>';return}
     cmList.innerHTML=arr.slice(-10).reverse().map(c=>`<div class="cm-item"><div class="cm-item-header"><span class="cm-item-name">${c.name}</span><span class="cm-item-time">${formatDate(c.time)}</span></div><div class="cm-item-text">${c.text}</div></div>`).join('');
@@ -560,7 +567,7 @@ cmSubmit.addEventListener('click',async()=>{
   cmSubmit.disabled=true;
   cmSubmit.textContent='...';
   try{
-    await fetch(cmAPI+window.location.pathname,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text})});
+    await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text})});
     cmText.value='';
     await loadComments();
   }catch(e){alert('Ошибка отправки')}
