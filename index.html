@@ -187,6 +187,39 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .cm-sticker{max-width:80px !important;max-height:80px !important;border-radius:8px !important}
 .cm-gif-preview{max-width:80px;max-height:80px;border-radius:8px;display:none;margin-top:6px}
 
+/* IMAGE UPLOAD & DRAWING */
+.cm-attach-row{display:flex;gap:6px;align-items:center;margin-top:4px}
+.cm-img-btn{background:none;border:none;font-size:18px;cursor:pointer;opacity:.55;transition:opacity .2s;padding:2px 4px;border-radius:8px}
+.cm-img-btn:hover{opacity:1;background:var(--bb)}
+.cm-img-preview-wrap{display:flex;align-items:flex-end;gap:6px}
+.cm-img-prev{max-width:72px;max-height:72px;border-radius:10px;display:none;margin-top:6px;cursor:pointer;object-fit:cover;border:2px solid var(--a1);transition:transform .2s}
+.cm-img-prev:hover{transform:scale(1.06)}
+.cm-img-prev.show{display:block}
+.cm-img-remove{font-size:10px;color:#ef4444;cursor:pointer;display:none;background:none;border:none;font-family:inherit;padding:2px 4px;border-radius:6px;transition:background .2s}
+.cm-img-remove:hover{background:rgba(239,68,68,.15)}
+.cm-img-remove.show{display:inline}
+/* thumbnails in comment list */
+.cm-thumb{max-width:80px;max-height:80px;border-radius:8px;cursor:pointer;margin-top:6px;object-fit:cover;display:block;border:1px solid var(--bbr);transition:transform .2s,box-shadow .2s}
+.cm-thumb:hover{transform:scale(1.07);box-shadow:0 4px 16px rgba(0,0,0,.4)}
+/* lightbox */
+.cm-lightbox{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;cursor:pointer;animation:lbFade .18s ease}
+@keyframes lbFade{from{opacity:0}to{opacity:1}}
+.cm-lightbox img{max-width:90vw;max-height:88vh;border-radius:14px;box-shadow:0 24px 64px rgba(0,0,0,.6);cursor:default;animation:lbPop .2s cubic-bezier(.34,1.56,.64,1)}
+@keyframes lbPop{from{transform:scale(.88)}to{transform:scale(1)}}
+.lb-close{position:absolute;top:20px;right:24px;color:#fff;font-size:28px;cursor:pointer;opacity:.7;transition:opacity .2s;background:none;border:none;line-height:1}
+.lb-close:hover{opacity:1}
+/* drawing modal */
+.draw-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.87);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);animation:lbFade .18s ease}
+.draw-box{background:#12001e;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;max-width:95vw;border:1px solid rgba(255,255,255,.12);box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.draw-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.draw-color{width:26px;height:26px;border-radius:50%;border:2.5px solid rgba(255,255,255,.2);cursor:pointer;transition:border-color .15s,transform .15s;flex-shrink:0}
+.draw-color:hover{transform:scale(1.15)}
+.draw-color.active{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.25);transform:scale(1.15)}
+.draw-canvas{border-radius:12px;touch-action:none;cursor:crosshair;display:block}
+.draw-btn2{padding:8px 14px;border-radius:10px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;font-family:inherit}
+.draw-size-row{display:flex;align-items:center;gap:6px}
+.draw-size{flex:1;height:3px;cursor:pointer;accent-color:var(--a1)}
+
 .cm-list{display:flex;flex-direction:column;gap:10px;padding:0 12px 12px;max-height:300px;overflow-y:auto}
 .cm-item{background:var(--bb);border-radius:12px;padding:12px;border:1px solid var(--bbr)}
 .cm-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
@@ -200,8 +233,28 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .fact-btn{width:100%;padding:14px 20px;border-radius:20px;border:none;background:var(--bb);color:var(--t1);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
 .fact-btn:hover{background:var(--bh);transform:scale(1.02)}
 .fact-btn:active{transform:scale(0.98)}
-.fact-output{padding:0 20px;border-radius:20px;background:var(--bb);border:1px solid var(--bbr);color:var(--t1);font-size:14px;word-wrap:break-word;max-height:0;overflow:hidden;opacity:0;transform:scale(0.95);transition:all .3s ease}
-.fact-output.show{max-height:200px;padding:16px 20px;opacity:1;transform:scale(1)}
+.fact-output{padding:0 20px;border-radius:20px;background:var(--bb);border:1px solid var(--bbr);color:var(--t1);font-size:14px;word-wrap:break-word;max-height:0;overflow:hidden;opacity:0;transform:translateY(-6px) scale(0.96);transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .3s,transform .35s cubic-bezier(.34,1.56,.64,1),padding .3s}
+.fact-output.show{max-height:200px;padding:16px 20px;opacity:1;transform:translateY(0) scale(1)}
+.fact-char{display:inline;opacity:0;animation:charPop .12s ease forwards}
+@keyframes charPop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.fact-particle{position:fixed;pointer-events:none;z-index:9998;font-size:14px;animation:fpFly .8s ease-out forwards}
+@keyframes fpFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--fx),var(--fy)) scale(0.3)}}
+
+/* BEAT EFFECT */
+.beat-on{will-change:transform;transition:transform 60ms linear}
+
+/* CURSORS */
+.cursor-overlay{position:fixed;inset:0;pointer-events:none;z-index:8888}
+.cursor-dot{position:fixed;pointer-events:none;transition:left .12s linear,top .12s linear;transform:translate(-50%,-50%)}
+.cursor-dot svg{width:20px;height:20px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+.cursor-dot .cursor-name{position:absolute;top:18px;left:6px;font-size:10px;font-weight:700;color:#fff;background:var(--a1);padding:1px 6px;border-radius:6px;white-space:nowrap;letter-spacing:.2px}
+
+/* CURSORS BUTTON */
+.cm-cursors-btn{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;background:var(--bb);border:1px solid var(--bbr);color:var(--t2);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.cm-cursors-btn:hover{background:var(--bh);color:var(--t1)}
+.cm-cursors-btn.active{background:rgba(124,58,237,.18);border-color:rgba(124,58,237,.4);color:#a78bfa}
+.cm-cursors-dot{width:7px;height:7px;border-radius:50%;background:var(--t2);transition:background .2s}
+.cm-cursors-btn.active .cm-cursors-dot{background:#a78bfa;box-shadow:0 0 6px #a78bfa;animation:sg 1.5s ease-in-out infinite}
 
 .m-card{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
 .m-row{display:flex;align-items:center;gap:12px}
@@ -381,7 +434,14 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 
 <!-- COMMENTS -->
 <div class="glass cm-card">
-  <div class="cm-title">💬 Комментарии</div>
+  <div class="cm-title" style="display:flex;align-items:center;justify-content:space-between">
+    <span>💬 Комментарии</span>
+    <button class="cm-cursors-btn" id="cursorToggleBtn" onclick="toggleCursors()">
+      <span class="cm-cursors-dot"></span>
+      <span id="cursorBtnLabel">Курсоры</span>
+      <span id="cursorCount" style="display:none;background:var(--a1);color:#fff;border-radius:5px;padding:0 5px;font-size:10px"></span>
+    </button>
+  </div>
   <div class="cm-inner">
 
     <!-- NOT LOGGED IN -->
@@ -418,6 +478,15 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
           <input type="text" class="cm-input" id="cmGifUrl" placeholder="URL GIF..." style="flex:1;display:none">
         </div>
         <img class="cm-gif-preview" id="cmGifPreview">
+        <div class="cm-attach-row">
+          <input type="file" id="cmImgInput" accept="image/*" style="display:none">
+          <button class="cm-img-btn" id="cmUploadBtn" title="Загрузить фото">📷</button>
+          <button class="cm-img-btn" id="cmDrawBtn" title="Нарисовать">🎨</button>
+        </div>
+        <div class="cm-img-preview-wrap">
+          <img class="cm-img-prev" id="cmImgPreview" onclick="openLightbox(this.src)" title="Клик — открыть">
+          <button class="cm-img-remove" id="cmImgRemove" onclick="removeImg('guest')">✕ убрать</button>
+        </div>
         <div class="cm-spam" id="cmSpamMsg"></div>
         <button class="cm-btn" id="cmSubmit" style="width:100%">Отправить</button>
       </div>
@@ -436,6 +505,15 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
         <input type="text" class="cm-input" id="cmGifUrlAuth" placeholder="URL GIF..." style="flex:1;display:none">
       </div>
       <img class="cm-gif-preview" id="cmGifPreviewAuth">
+      <div class="cm-attach-row">
+        <input type="file" id="cmImgInputAuth" accept="image/*" style="display:none">
+        <button class="cm-img-btn" id="cmUploadBtnAuth" title="Загрузить фото">📷</button>
+        <button class="cm-img-btn" id="cmDrawBtnAuth" title="Нарисовать">🎨</button>
+      </div>
+      <div class="cm-img-preview-wrap">
+        <img class="cm-img-prev" id="cmImgPreviewAuth" onclick="openLightbox(this.src)" title="Клик — открыть">
+        <button class="cm-img-remove" id="cmImgRemoveAuth" onclick="removeImg('auth')">✕ убрать</button>
+      </div>
       <div class="cm-spam" id="cmSpamMsgAuth"></div>
       <button class="cm-btn" id="cmSubmitAuth" style="width:100%">Отправить</button>
     </div>
@@ -555,7 +633,7 @@ setInterval(()=>{
   },300);
 },3500);
 
-/* MUSIC PLAYER */
+/* MUSIC PLAYER + BEAT */
 let audio=new Audio(),isPlaying=false;
 const mPlayBtn=document.getElementById('mPlayBtn'),mSeek=document.getElementById('mSeek'),mEq=document.getElementById('mEq');
 const mPlayIcon=document.getElementById('mPlayIcon'),mPauseIcon=document.getElementById('mPauseIcon');
@@ -563,35 +641,60 @@ const mCurTime=document.getElementById('mCurTime'),mDurTime=document.getElementB
 const musicCard=document.getElementById('musicCard');
 
 audio.src='https://raw.githubusercontent.com/spiderkarasio/mybio/main/SpotiDownloader.com%20-%20Water%20Resistant%20-%20Anamanaguchi.mp3';
-audio.volume=0.6;
+audio.volume=0.6;audio.crossOrigin='anonymous';
+
+let audioCtx=null,analyser=null,beatRaf=null;
+function initAudioCtx(){
+  if(audioCtx)return;
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  const src=audioCtx.createMediaElementSource(audio);
+  analyser=audioCtx.createAnalyser();
+  analyser.fftSize=256;analyser.smoothingTimeConstant=0.75;
+  src.connect(analyser);analyser.connect(audioCtx.destination);
+}
+
+let lastBeat=0,beatCooldown=180;
+function beatLoop(){
+  if(!isPlaying){musicCard.style.transform='';return;}
+  beatRaf=requestAnimationFrame(beatLoop);
+  const buf=new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(buf);
+  // bass = first 8 bins (~0-340Hz)
+  let bass=0;for(let i=0;i<8;i++)bass+=buf[i];bass=bass/8/255;
+  // mid punch 
+  let mid=0;for(let i=8;i<24;i++)mid+=buf[i];mid=mid/16/255;
+  const energy=bass*0.75+mid*0.25;
+  const now=performance.now();
+  if(energy>0.42&&now-lastBeat>beatCooldown){
+    lastBeat=now;
+    const s=1+energy*0.055,tx=(Math.random()-.5)*energy*4,ty=-energy*3;
+    musicCard.style.transform=`scale(${s}) translate(${tx}px,${ty}px)`;
+    setTimeout(()=>{musicCard.style.transform=`scale(1) translate(0,0)`;},85);
+  }
+}
 
 function formatTime(s){
   if(isNaN(s))return'0:00';
-  const m=Math.floor(s/60);
-  const sc=Math.floor(s%60);
-  return m+':'+(sc<10?'0':'')+sc;
+  return Math.floor(s/60)+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60);
 }
 
 function toggleMusic(){
   if(isPlaying){
-    audio.pause();
-    isPlaying=false;
-    mPlayIcon.style.display='block';
-    mPauseIcon.style.display='none';
+    audio.pause();isPlaying=false;
+    mPlayIcon.style.display='block';mPauseIcon.style.display='none';
     mEq.classList.remove('play');
-    musicCard.classList.remove('shake-anim');
+    cancelAnimationFrame(beatRaf);musicCard.style.transform='';
     document.querySelector('.av-glow').style.animationDuration='4s';
     document.querySelector('.av-glow').style.opacity='0.22';
   }else{
-    audio.play().catch(()=>{});
-    isPlaying=true;
-    mPlayIcon.style.display='none';
-    mPauseIcon.style.display='block';
+    initAudioCtx();
+    if(audioCtx.state==='suspended')audioCtx.resume();
+    audio.play().catch(()=>{});isPlaying=true;
+    mPlayIcon.style.display='none';mPauseIcon.style.display='block';
     mEq.classList.add('play');
-    musicCard.classList.add('shake-anim');
     document.querySelector('.av-glow').style.animationDuration='1s';
     document.querySelector('.av-glow').style.opacity='0.6';
-    setTimeout(()=>musicCard.classList.remove('shake-anim'),400);
+    beatLoop();
   }
 }
 
@@ -619,7 +722,7 @@ audio.addEventListener('ended',()=>{
   mEq.classList.remove('play');
   mSeek.value=0;
   mCurTime.textContent='0:00';
-  musicCard.classList.remove('shake-anim');
+  cancelAnimationFrame(beatRaf);musicCard.style.transform='';
   document.querySelector('.av-glow').style.animationDuration='4s';
   document.querySelector('.av-glow').style.opacity='0.22';
 });
@@ -717,9 +820,10 @@ cmLoginBtn.addEventListener('click',async()=>{
     const res=await fetch(cmAPI+'auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login,password:pass})});
     const data=await res.json();
     if(data.ok){
-      currentUser=login;currentUserName=data.name;
-      localStorage.setItem('cm_session',JSON.stringify({login,name:data.name}));
-      showUserPanel(data.name);cmStatusMsg.textContent='';
+      const lName=data.name||login;
+      currentUser=login;currentUserName=lName;
+      localStorage.setItem('cm_session',JSON.stringify({login,name:lName}));
+      showUserPanel(lName);cmStatusMsg.textContent='';
     }else{cmStatusMsg.textContent=data.error||'Ошибка входа';}
   }catch(e){cmStatusMsg.textContent='Ошибка соединения'}
   cmLoginBtn.disabled=false;cmLoginBtn.textContent='Войти';
@@ -737,9 +841,10 @@ cmRegisterBtn.addEventListener('click',async()=>{
     const res=await fetch(cmAPI+'auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login,password:pass,name:name||login})});
     const data=await res.json();
     if(data.ok){
-      currentUser=login;currentUserName=data.name;
-      localStorage.setItem('cm_session',JSON.stringify({login,name:data.name}));
-      showUserPanel(data.name);cmRegMsg.textContent='';
+      const rName=data.name||name||login;
+      currentUser=login;currentUserName=rName;
+      localStorage.setItem('cm_session',JSON.stringify({login,name:rName}));
+      showUserPanel(rName);cmRegMsg.textContent='';
     }else{cmRegMsg.textContent=data.error||'Ошибка регистрации';}
   }catch(e){cmRegMsg.textContent='Ошибка соединения'}
   cmRegisterBtn.disabled=false;cmRegisterBtn.textContent='Создать аккаунт';
@@ -819,11 +924,13 @@ function renderComments(arr,hasNew){
     if(c.replies&&c.replies.length){
       repliesHtml='<div class="cm-reply-item">'+c.replies.map(r=>{
         const gifHtml=r.gif?`<img src="${r.gif}" class="cm-sticker" loading="lazy" alt="GIF" onerror="this.style.display='none'">`:'';
-        return`<div class="cm-item" style="padding:8px;margin-top:4px"><div class="cm-item-header"><span class="cm-item-name">${r.name}</span><span class="cm-item-time">${formatDate(r.time)}</span></div>${gifHtml}<div class="cm-item-text">${r.text}</div></div>`;
+        const imgHtml=r.img?`<img src="${r.img}" class="cm-thumb" onclick="openLightbox(this.src)" loading="lazy" alt="изображение">`:'';
+        return`<div class="cm-item" style="padding:8px;margin-top:4px"><div class="cm-item-header"><span class="cm-item-name">${r.name}</span><span class="cm-item-time">${formatDate(r.time)}</span></div>${gifHtml}${imgHtml}<div class="cm-item-text">${r.text}</div></div>`;
       }).join('')+'</div>';
     }
     const gifHtml=c.gif?`<img src="${c.gif}" class="cm-sticker" loading="lazy" alt="GIF" onerror="this.style.display='none'">`:'';
-    return`<div class="cm-item${i===0&&hasNew?newClass:''}"><div class="cm-item-header"><span class="cm-item-name">${c.name}</span><span class="cm-item-time">${formatDate(c.time)}</span></div>${gifHtml}<div class="cm-item-text">${c.text}</div><div class="cm-item-actions"><button class="cm-reply-btn" onclick="showReplyForm('${c.time}')">Ответить</button></div><div id="reply-${c.time}" style="display:none"></div>${repliesHtml}</div>`;
+    const imgHtml=c.img?`<img src="${c.img}" class="cm-thumb" onclick="openLightbox(this.src)" loading="lazy" alt="изображение">`:'';
+    return`<div class="cm-item${i===0&&hasNew?newClass:''}"><div class="cm-item-header"><span class="cm-item-name">${c.name}</span><span class="cm-item-time">${formatDate(c.time)}</span></div>${gifHtml}${imgHtml}<div class="cm-item-text">${c.text}</div><div class="cm-item-actions"><button class="cm-reply-btn" onclick="showReplyForm('${c.time}')">Ответить</button></div><div id="reply-${c.time}" style="display:none"></div>${repliesHtml}</div>`;
   }).join('');
 }
 
@@ -849,14 +956,16 @@ cmSubmit.addEventListener('click',async(e)=>{
   const name=cmGuestName.value.trim()||'Анон';
   const text=cmText.value.trim();
   const gif=cmGifPreview.src&&cmGifPreview.classList.contains('show')?cmGifPreview.src:'';
+  const img=guestImg||'';
   const spam=checkSpam(text);
-  if(spam&&!gif){cmSpamMsg.textContent=spam;return;}
+  if(spam&&!gif&&!img){cmSpamMsg.textContent=spam;return;}
   cmSpamMsg.textContent='';lastPostTime=Date.now();
   cmSubmit.disabled=true;cmSubmit.textContent='...';
   showSendAnimation(e.clientX,e.clientY);
   try{
-    await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,gif})});
+    await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,gif,img})});
     cmText.value='';cmGifUrl.value='';cmGifPreview.classList.remove('show');cmGifPreview.src='';
+    guestImg='';document.getElementById('cmImgPreview').classList.remove('show');document.getElementById('cmImgRemove').classList.remove('show');
     await loadComments();
   }catch(e){cmSpamMsg.textContent='Ошибка'}
   cmSubmit.disabled=false;cmSubmit.textContent='Отправить';
@@ -866,14 +975,16 @@ cmSubmitAuth.addEventListener('click',async(e)=>{
   const name=currentUserName;
   const text=cmTextAuth.value.trim();
   const gif=cmGifPreviewAuth.src&&cmGifPreviewAuth.classList.contains('show')?cmGifPreviewAuth.src:'';
+  const img=authImg||'';
   const spam=checkSpam(text);
-  if(spam&&!gif){cmSpamMsgAuth.textContent=spam;return;}
+  if(spam&&!gif&&!img){cmSpamMsgAuth.textContent=spam;return;}
   cmSpamMsgAuth.textContent='';lastPostTime=Date.now();
   cmSubmitAuth.disabled=true;cmSubmitAuth.textContent='...';
   showSendAnimation(e.clientX,e.clientY);
   try{
-    await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,gif,author:currentUser})});
+    await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,gif,img,author:currentUser})});
     cmTextAuth.value='';cmGifUrlAuth.value='';cmGifPreviewAuth.classList.remove('show');cmGifPreviewAuth.src='';
+    authImg='';document.getElementById('cmImgPreviewAuth').classList.remove('show');document.getElementById('cmImgRemoveAuth').classList.remove('show');
     await loadComments();
   }catch(e){cmSpamMsgAuth.textContent='Ошибка'}
   cmSubmitAuth.disabled=false;cmSubmitAuth.textContent='Отправить';
@@ -882,6 +993,179 @@ cmSubmitAuth.addEventListener('click',async(e)=>{
 checkAuth();
 loadComments();
 setInterval(loadComments,5000);
+
+/* ── IMAGE UPLOAD & DRAWING ── */
+let guestImg='', authImg='';
+
+function compressImg(file,maxDim=420,quality=0.78){
+  return new Promise(resolve=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const im=new Image();
+      im.onload=()=>{
+        let w=im.width,h=im.height;
+        if(w>maxDim||h>maxDim){if(w>h){h=Math.round(h*maxDim/w);w=maxDim;}else{w=Math.round(w*maxDim/h);h=maxDim;}}
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(im,0,0,w,h);
+        resolve(c.toDataURL('image/jpeg',quality));
+      };
+      im.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById('cmUploadBtn').addEventListener('click',()=>document.getElementById('cmImgInput').click());
+document.getElementById('cmImgInput').addEventListener('change',async ev=>{
+  const f=ev.target.files[0];if(!f)return;
+  guestImg=await compressImg(f);
+  const p=document.getElementById('cmImgPreview');p.src=guestImg;p.classList.add('show');
+  document.getElementById('cmImgRemove').classList.add('show');
+  ev.target.value='';
+});
+document.getElementById('cmUploadBtnAuth').addEventListener('click',()=>document.getElementById('cmImgInputAuth').click());
+document.getElementById('cmImgInputAuth').addEventListener('change',async ev=>{
+  const f=ev.target.files[0];if(!f)return;
+  authImg=await compressImg(f);
+  const p=document.getElementById('cmImgPreviewAuth');p.src=authImg;p.classList.add('show');
+  document.getElementById('cmImgRemoveAuth').classList.add('show');
+  ev.target.value='';
+});
+window.removeImg=function(type){
+  if(type==='guest'){guestImg='';document.getElementById('cmImgPreview').classList.remove('show');document.getElementById('cmImgRemove').classList.remove('show');}
+  else{authImg='';document.getElementById('cmImgPreviewAuth').classList.remove('show');document.getElementById('cmImgRemoveAuth').classList.remove('show');}
+};
+
+/* Lightbox */
+window.openLightbox=function(src){
+  const lb=document.createElement('div');lb.className='cm-lightbox';
+  lb.innerHTML=`<button class="lb-close" onclick="event.stopPropagation();this.closest('.cm-lightbox').remove()">✕</button><img src="${src}" onclick="event.stopPropagation()">`;
+  lb.onclick=()=>lb.remove();
+  document.body.appendChild(lb);
+};
+
+/* Drawing modal */
+const DRAW_COLORS=['#ffffff','#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#a78bfa','#ec4899','#000000','#64748b'];
+let drawTarget='guest';
+function openDrawModal(target){
+  drawTarget=target;
+  const cw=Math.min(innerWidth-80,320),ch=Math.round(cw*0.65);
+  const modal=document.createElement('div');modal.className='draw-modal';modal.id='drawModal';
+  modal.innerHTML=`<div class="draw-box">
+    <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:.5px">🎨 Рисуй</div>
+    <div class="draw-tools">
+      ${DRAW_COLORS.map((c,i)=>`<div class="draw-color${i===0?' active':''}" style="background:${c}" onclick="pickDrawColor(this,'${c}')"></div>`).join('')}
+    </div>
+    <div class="draw-size-row">
+      <span style="font-size:11px;color:rgba(255,255,255,.4)">✏️</span>
+      <input type="range" class="draw-size" id="drawSize" min="2" max="28" value="6">
+      <button class="draw-btn2" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6)" onclick="setDrawEraser()">◻ ластик</button>
+      <button class="draw-btn2" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6)" onclick="clearDrawCanvas()">🗑</button>
+    </div>
+    <canvas class="draw-canvas" id="drawCanvas" width="${cw}" height="${ch}"></canvas>
+    <div style="display:flex;gap:8px">
+      <button class="draw-btn2" style="flex:1;background:var(--a1);color:#fff;font-size:13px" onclick="confirmDraw()">✓ Готово</button>
+      <button class="draw-btn2" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5)" onclick="closeDrawModal()">Отмена</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  initDrawCanvas();
+}
+let drawCtx,isDrawing=false,drawColor='#ffffff',drawEraser=false,lastDX=0,lastDY=0;
+function initDrawCanvas(){
+  const cv=document.getElementById('drawCanvas');
+  drawCtx=cv.getContext('2d');
+  drawCtx.fillStyle='#1a1030';drawCtx.fillRect(0,0,cv.width,cv.height);
+  drawCtx.lineCap='round';drawCtx.lineJoin='round';
+  function pos(e){const r=cv.getBoundingClientRect();if(e.touches)return{x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top};return{x:e.clientX-r.left,y:e.clientY-r.top};}
+  function draw(e){
+    if(!isDrawing)return;
+    const p=pos(e);
+    drawCtx.globalCompositeOperation=drawEraser?'destination-out':'source-over';
+    drawCtx.strokeStyle=drawColor;
+    drawCtx.lineWidth=parseInt(document.getElementById('drawSize').value);
+    drawCtx.beginPath();drawCtx.moveTo(lastDX,lastDY);drawCtx.lineTo(p.x,p.y);drawCtx.stroke();
+    lastDX=p.x;lastDY=p.y;
+  }
+  cv.addEventListener('mousedown',e=>{isDrawing=true;const p=pos(e);lastDX=p.x;lastDY=p.y;});
+  cv.addEventListener('mousemove',draw);
+  cv.addEventListener('mouseup',()=>isDrawing=false);
+  cv.addEventListener('mouseleave',()=>isDrawing=false);
+  cv.addEventListener('touchstart',e=>{e.preventDefault();isDrawing=true;const p=pos(e);lastDX=p.x;lastDY=p.y;},{passive:false});
+  cv.addEventListener('touchmove',e=>{e.preventDefault();draw(e);},{passive:false});
+  cv.addEventListener('touchend',()=>isDrawing=false);
+}
+window.pickDrawColor=function(el,c){drawColor=c;drawEraser=false;document.querySelectorAll('#drawModal .draw-color').forEach(d=>d.classList.remove('active'));el.classList.add('active');};
+window.setDrawEraser=function(){drawEraser=true;document.querySelectorAll('#drawModal .draw-color').forEach(d=>d.classList.remove('active'));};
+window.clearDrawCanvas=function(){const cv=document.getElementById('drawCanvas');drawCtx.globalCompositeOperation='source-over';drawCtx.fillStyle='#1a1030';drawCtx.fillRect(0,0,cv.width,cv.height);};
+window.confirmDraw=function(){
+  const cv=document.getElementById('drawCanvas');const url=cv.toDataURL('image/jpeg',0.82);
+  if(drawTarget==='guest'){guestImg=url;const p=document.getElementById('cmImgPreview');p.src=url;p.classList.add('show');document.getElementById('cmImgRemove').classList.add('show');}
+  else{authImg=url;const p=document.getElementById('cmImgPreviewAuth');p.src=url;p.classList.add('show');document.getElementById('cmImgRemoveAuth').classList.add('show');}
+  closeDrawModal();
+};
+window.closeDrawModal=function(){const m=document.getElementById('drawModal');if(m)m.remove();};
+document.getElementById('cmDrawBtn').addEventListener('click',()=>openDrawModal('guest'));
+document.getElementById('cmDrawBtnAuth').addEventListener('click',()=>openDrawModal('auth'));
+
+/* ── CURSORS ── */
+const CURSOR_API=cmAPI+'cursors';
+let cursorsOn=false,cursorPollIv=null,cursorSendIv=null;
+let myMouseX=0,myMouseY=0;
+const cursorOverlay=document.createElement('div');cursorOverlay.className='cursor-overlay';document.body.appendChild(cursorOverlay);
+const myCursorId='cur_'+Math.random().toString(36).slice(2,9);
+const myCursorColor=['#a78bfa','#60a5fa','#f472b6','#34d399','#fb923c'][Math.floor(Math.random()*5)];
+document.addEventListener('mousemove',e=>{myMouseX=e.clientX;myMouseY=e.clientY;});
+document.addEventListener('touchmove',e=>{if(e.touches[0]){myMouseX=e.touches[0].clientX;myMouseY=e.touches[0].clientY;}},{passive:true});
+const activeCursors={};
+function renderCursors(list){
+  const seen=new Set();
+  list.forEach(c=>{
+    if(c.id===myCursorId)return;
+    seen.add(c.id);
+    const xp=(c.x/c.vw)*100,yp=(c.y/c.vh)*100;
+    const ax=xp/100*innerWidth,ay=yp/100*innerHeight;
+    if(activeCursors[c.id]){
+      const el=activeCursors[c.id];
+      el.style.left=ax+'px';el.style.top=ay+'px';
+    }else{
+      const el=document.createElement('div');el.className='cursor-dot';
+      el.style.left=ax+'px';el.style.top=ay+'px';
+      el.innerHTML=`<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5.5 3.5L19 12l-7 1.5L9.5 20z" fill="${c.color||'#a78bfa'}" stroke="rgba(0,0,0,.4)" stroke-width="1.2"/></svg><div class="cursor-name" style="background:${c.color||'#a78bfa'}">${c.name||'???'}</div>`;
+      cursorOverlay.appendChild(el);activeCursors[c.id]=el;
+    }
+  });
+  Object.keys(activeCursors).forEach(id=>{
+    if(!seen.has(id)){activeCursors[id].remove();delete activeCursors[id];}
+  });
+  const cnt=seen.size;
+  const countEl=document.getElementById('cursorCount');
+  if(cnt>0){countEl.style.display='inline';countEl.textContent=cnt;}
+  else{countEl.style.display='none';}
+}
+async function sendCursor(){
+  const name=currentUserName||(document.getElementById('cmGuestName').value.trim()||'Аноним');
+  try{await fetch(CURSOR_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:myCursorId,x:myMouseX,y:myMouseY,vw:innerWidth,vh:innerHeight,name,color:myCursorColor})});}catch(e){}
+}
+async function pollCursors(){
+  try{const r=await fetch(CURSOR_API);const d=await r.json();if(Array.isArray(d))renderCursors(d);}catch(e){}
+}
+window.toggleCursors=function(){
+  const btn=document.getElementById('cursorToggleBtn');
+  cursorsOn=!cursorsOn;
+  btn.classList.toggle('active',cursorsOn);
+  document.getElementById('cursorBtnLabel').textContent=cursorsOn?'Онлайн':'Курсоры';
+  if(cursorsOn){
+    sendCursor();pollCursors();
+    cursorSendIv=setInterval(sendCursor,400);
+    cursorPollIv=setInterval(pollCursors,600);
+  }else{
+    clearInterval(cursorSendIv);clearInterval(cursorPollIv);
+    Object.keys(activeCursors).forEach(id=>{activeCursors[id].remove();delete activeCursors[id];});
+    document.getElementById('cursorCount').style.display='none';
+    try{fetch(CURSOR_API+'/remove',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:myCursorId})});}catch(e){}
+  }
+};
 /* FACTS */
 const factsList=[
   "бля, вот шкебеде вообще красава, взял помог с дизайном",
@@ -896,14 +1180,42 @@ const factsList=[
   "YSOHMKDBGQWYWFSYBWZWYQWFHSUTILDBDSIXKVFZEPHAYTHICUBTNGFWWBDAXCEGKOWIML rot + Playfair"
 ];
 const factBtn=document.getElementById('factBtn'),factOutput=document.getElementById('factOutput');
-let lastFact=-1,factTimer;
-factBtn.addEventListener('click',()=>{
+let lastFact=-1,factTimer,twTimer;
+const FACT_PARTICLES=['✨','⚡','🔥','💜','🎲','💫','🌟'];
+function spawnFactParticles(btn){
+  const r=btn.getBoundingClientRect();
+  const cx=r.left+r.width/2,cy=r.top+r.height/2;
+  for(let i=0;i<7;i++){
+    const p=document.createElement('div');p.className='fact-particle';
+    const ang=Math.PI*2*i/7,dist=55+Math.random()*35;
+    p.style.setProperty('--fx',Math.cos(ang)*dist+'px');
+    p.style.setProperty('--fy',Math.sin(ang)*dist+'px');
+    p.style.left=cx+'px';p.style.top=cy+'px';
+    p.style.animationDelay=(i*55)+'ms';
+    p.textContent=FACT_PARTICLES[i%FACT_PARTICLES.length];
+    document.body.appendChild(p);setTimeout(()=>p.remove(),1000);
+  }
+}
+function typewriteFact(text){
+  factOutput.innerHTML='';factOutput.classList.add('show');
+  clearTimeout(twTimer);
+  let i=0;
+  (function next(){
+    if(i>=text.length)return;
+    const sp=document.createElement('span');sp.className='fact-char';
+    sp.style.animationDelay=(i*18)+'ms';
+    sp.textContent=text[i++];
+    factOutput.appendChild(sp);
+    twTimer=setTimeout(next,18);
+  })();
+}
+factBtn.addEventListener('click',e=>{
   if(factTimer)clearTimeout(factTimer);
   let idx;do{idx=Math.floor(Math.random()*factsList.length)}while(idx===lastFact&&factsList.length>1);
   lastFact=idx;
-  factOutput.textContent=factsList[idx];
-  factOutput.classList.add('show');
-  factTimer=setTimeout(()=>factOutput.classList.remove('show'),6000);
+  spawnFactParticles(factBtn);
+  typewriteFact(factsList[idx]);
+  factTimer=setTimeout(()=>factOutput.classList.remove('show'),8000);
 });
 </script>
 </body>
