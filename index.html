@@ -124,8 +124,10 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 /* ── COMMENTS ── */
 .cm-card{padding:20px 22px 16px}
 .cm-title{font-size:10px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--t2);margin-bottom:13px;transition:color .5s}
-.cm-inner{border-radius:12px;overflow:hidden;background:var(--gb);border:1px solid var(--gbr);min-height:180px}
-.cm-inner iframe{width:100% !important}
+.cm-inner{border-radius:24px;overflow:hidden;position:relative;background:var(--gb);border:1px solid var(--gbr)}
+.cm-inner::before{content:'';position:absolute;inset:0;background:linear-gradient(140deg,rgba(255,255,255,0.05) 0%,transparent 60%);pointer-events:none;z-index:0;border-radius:inherit}
+.cm-inner>*{position:relative;z-index:1}
+.giscus,.giscus-frame{width:100%;border:none}
 
 .foot{font-size:10.5px;color:var(--t2);text-align:center;padding-top:4px;transition:color .5s;letter-spacing:.4px}
 
@@ -314,8 +316,23 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 <!-- COMMENTS -->
 <div class="glass cm-card">
   <div class="cm-title">💬 Комментарии</div>
-  <div class="cm-inner"><script async src="https://comments.app/js/widget.js?3" data-comments-app-website="PlNVWl0S" data-limit="5" data-colorful="1"></script></div>
-</div>
+  <div class="cm-inner">
+    <script src="https://giscus.app/client.js"
+        data-repo="spiderkarasio/mybio"
+        data-repo-id="R_kgDOR59STg"
+        data-category="General"
+        data-category-id="DIC_kwDOR59STs4C6EZ3"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="ru"
+        crossorigin="anonymous"
+        async>
+    </script>
+  </div>
 
 </div>
 
@@ -356,6 +373,9 @@ function setT(name,el){
   td.lt?body.classList.add('lt'):body.classList.remove('lt');
   const r=document.documentElement.style;r.setProperty('--a1',td.a1);r.setProperty('--a2',td.a2);
   document.querySelectorAll('.td').forEach(d=>d.classList.remove('on'));el.classList.add('on');toggleP();
+  // Update giscus theme
+  const giscus=document.querySelector('.giscus-frame');
+  if(giscus){const src=giscus.getAttribute('src');if(src){const newSrc=src.replace(/theme=[^&]*/,'theme='+(td.lt?'light':'dark'));giscus.setAttribute('src',newSrc)}}
 }
 const pk=document.getElementById('picker');
 document.getElementById('palBtn').addEventListener('click',toggleP);
@@ -375,12 +395,14 @@ avImg.onload=function(){avEmoji.style.display='none';avImg.style.display='block'
 avImg.onerror=function(){avEmoji.style.display='flex';avImg.style.display='none'};
 avImg.src='https://raw.githubusercontent.com/spiderkarasio/mybio/main/picture.png';
 
-/* STATUS - по локальному времени пользователя */
+/* STATUS - по московскому времени */
 function updateStatus(){
-  const h=new Date().getHours();
+  const now=new Date();
+  const localOffset=-now.getTimezoneOffset()/60;
+  const mskH=(now.getHours()+(3-localOffset)+24)%24;
   const b=document.getElementById('statBadge');
   b.className='badge';
-  if(h>=3&&h<11){b.classList.add('s-sl');document.getElementById('statTxt').textContent='💤 Спит'}
+  if(mskH>=3&&mskH<11){b.classList.add('s-sl');document.getElementById('statTxt').textContent='💤 Спит'}
   else{b.classList.add('s-on');document.getElementById('statTxt').textContent='🟢 Онлайн'}
 }
 updateStatus();setInterval(updateStatus,60000);
