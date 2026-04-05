@@ -157,16 +157,14 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .cm-reply-form .cm-btn{padding:6px 12px;font-size:11px}
 .cm-reply-item{margin-top:8px;padding-left:12px;border-left:2px solid var(--a2)}
 .cm-empty{text-align:center;color:var(--t2);padding:20px;font-size:13px}
-.cm-spam{color:#ef4444;font-size:11px;margin-top:4px}
+/* ── AUTH TABS ── */
+.cm-tabs{display:flex;gap:4px;margin-bottom:12px;background:var(--sb);border-radius:10px;padding:3px}
+.cm-tab{flex:1;padding:7px 4px;border:none;border-radius:8px;background:transparent;color:var(--t2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.cm-tab.active{background:var(--bb);color:var(--t1);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.cm-tab:hover:not(.active){color:var(--t1)}
+.cm-panel{display:flex;flex-direction:column;gap:8px}
+.cm-spam{color:#ef4444;font-size:11px;margin-top:2px}
 .cm-clear{font-size:10px;color:var(--t2);cursor:pointer;text-decoration:underline;margin-top:8px;text-align:center}
-.cm-delete{font-size:10px;color:#ef4444;cursor:pointer;margin-left:8px}
-.cm-delete:hover{text-decoration:underline}
-.cm-auth-row{display:flex;gap:6px;margin-bottom:8px}
-.cm-auth-row .cm-input{flex:1}
-.cm-auth-divider{text-align:center;color:var(--t2);font-size:11px;margin:8px 0}
-.cm-user-panel{display:none;padding:12px;background:var(--bb);border-radius:12px;margin-bottom:8px}
-.cm-user-info{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.cm-user-avatar{width:28px;height:28px;border-radius:50%;background:var(--a1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
 .cm-delete{font-size:10px;color:#ef4444;cursor:pointer;margin-left:8px}
 .cm-delete:hover{text-decoration:underline}
 
@@ -385,42 +383,63 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 <div class="glass cm-card">
   <div class="cm-title">💬 Комментарии</div>
   <div class="cm-inner">
+
+    <!-- NOT LOGGED IN -->
     <div class="cm-form" id="cmAuthForm">
-      <div class="cm-auth-row">
-        <input type="text" class="cm-input" id="cmLoginInput" placeholder="Имя пользователя">
+      <div class="cm-tabs">
+        <button class="cm-tab active" id="tabLogin" onclick="switchTab('login')">Войти</button>
+        <button class="cm-tab" id="tabRegister" onclick="switchTab('register')">Регистрация</button>
+        <button class="cm-tab" id="tabGuest" onclick="switchTab('guest')">Гость</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="cm-panel" id="panelLogin">
+        <input type="text" class="cm-input" id="cmLoginInput" placeholder="Логин">
         <input type="password" class="cm-input" id="cmPassInput" placeholder="Пароль">
-        <button class="cm-btn" id="cmLoginBtn">Войти</button>
+        <div class="cm-spam" id="cmStatusMsg"></div>
+        <button class="cm-btn" id="cmLoginBtn" style="width:100%">Войти</button>
       </div>
-      <div class="cm-auth-divider">или</div>
-      <input type="text" class="cm-input" id="cmGuestName" placeholder="Имя (гость)">
-      <textarea class="cm-input" id="cmText" placeholder="Написать комментарий..." rows="2"></textarea>
-      <div class="cm-gif-row">
-        <button class="cm-gif-btn" id="cmGifBtn" title="GIF">🎬</button>
-        <input type="text" class="cm-input" id="cmGifUrl" placeholder="URL GIF..." style="flex:1;display:none">
+
+      <!-- REGISTER -->
+      <div class="cm-panel" id="panelRegister" style="display:none">
+        <input type="text" class="cm-input" id="cmRegLogin" placeholder="Логин (мин. 3 символа)">
+        <input type="text" class="cm-input" id="cmRegName" placeholder="Имя в чате">
+        <input type="password" class="cm-input" id="cmRegPass" placeholder="Пароль (мин. 4 символа)">
+        <div class="cm-spam" id="cmRegMsg"></div>
+        <button class="cm-btn" id="cmRegisterBtn" style="width:100%">Создать аккаунт</button>
       </div>
-      <img class="cm-gif-preview" id="cmGifPreview">
-      <div class="cm-spam" id="cmStatusMsg"></div>
-      <div class="cm-spam" id="cmSpamMsg"></div>
-      <div style="display:flex;gap:6px">
-        <button class="cm-btn" id="cmRegisterBtn" style="flex:1;background:var(--bb);border:1px solid var(--bbr);color:var(--t1)">Зарегистрироваться</button>
-        <button class="cm-btn" id="cmSubmit" style="flex:1">Отправить как гость</button>
+
+      <!-- GUEST -->
+      <div class="cm-panel" id="panelGuest" style="display:none">
+        <input type="text" class="cm-input" id="cmGuestName" placeholder="Имя (необязательно)">
+        <textarea class="cm-input" id="cmText" placeholder="Написать комментарий..." rows="2" style="resize:none"></textarea>
+        <div class="cm-gif-row">
+          <button class="cm-gif-btn" id="cmGifBtn" title="GIF">🎬</button>
+          <input type="text" class="cm-input" id="cmGifUrl" placeholder="URL GIF..." style="flex:1;display:none">
+        </div>
+        <img class="cm-gif-preview" id="cmGifPreview">
+        <div class="cm-spam" id="cmSpamMsg"></div>
+        <button class="cm-btn" id="cmSubmit" style="width:100%">Отправить</button>
       </div>
     </div>
-    <div class="cm-user-panel" id="cmUserPanel" style="display:none">
-      <div class="cm-user-info">
+
+    <!-- LOGGED IN -->
+    <div class="cm-form" id="cmUserPanel" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 10px;background:var(--bb);border-radius:10px;border:1px solid var(--bbr)">
         <div class="cm-user-avatar" id="cmUserAvatar">?</div>
-        <span class="cm-item-name" id="cmUserName">User</span>
-        <button class="cm-btn" id="cmLogoutBtn" style="padding:4px 8px;font-size:11px">Выйти</button>
+        <span class="cm-item-name" id="cmUserName" style="flex:1">User</span>
+        <button class="cm-btn" id="cmLogoutBtn" style="padding:5px 10px;font-size:11px;background:var(--bb);border:1px solid var(--bbr);color:var(--t2)">Выйти</button>
       </div>
-      <textarea class="cm-input" id="cmTextAuth" placeholder="Написать комментарий..." rows="2"></textarea>
+      <textarea class="cm-input" id="cmTextAuth" placeholder="Написать комментарий..." rows="2" style="resize:none"></textarea>
       <div class="cm-gif-row">
         <button class="cm-gif-btn" id="cmGifBtnAuth" title="GIF">🎬</button>
         <input type="text" class="cm-input" id="cmGifUrlAuth" placeholder="URL GIF..." style="flex:1;display:none">
       </div>
       <img class="cm-gif-preview" id="cmGifPreviewAuth">
       <div class="cm-spam" id="cmSpamMsgAuth"></div>
-      <button class="cm-btn" id="cmSubmitAuth">Отправить</button>
+      <button class="cm-btn" id="cmSubmitAuth" style="width:100%">Отправить</button>
     </div>
+
     <div class="cm-list" id="cmList"></div>
   </div>
 </div>
@@ -616,14 +635,18 @@ document.getElementById('volumeSlider').addEventListener('input',e=>{
   audio.volume=e.target.value/100;
 });
 
-/* COMMENTS - Cloudflare KV + Approval System */
+/* COMMENTS */
 const cmAPI='https://mybio.spiderkaras.workers.dev/';
+
 const cmAuthForm=document.getElementById('cmAuthForm');
 const cmUserPanel=document.getElementById('cmUserPanel');
 const cmLoginInput=document.getElementById('cmLoginInput');
 const cmPassInput=document.getElementById('cmPassInput');
 const cmLoginBtn=document.getElementById('cmLoginBtn');
 const cmRegisterBtn=document.getElementById('cmRegisterBtn');
+const cmRegLogin=document.getElementById('cmRegLogin');
+const cmRegName=document.getElementById('cmRegName');
+const cmRegPass=document.getElementById('cmRegPass');
 const cmGuestName=document.getElementById('cmGuestName');
 const cmText=document.getElementById('cmText');
 const cmTextAuth=document.getElementById('cmTextAuth');
@@ -642,9 +665,7 @@ const cmGifPreviewAuth=document.getElementById('cmGifPreviewAuth');
 const cmSpamMsg=document.getElementById('cmSpamMsg');
 const cmSpamMsgAuth=document.getElementById('cmSpamMsgAuth');
 const cmStatusMsg=document.getElementById('cmStatusMsg');
-
-const PENDING_KEY='cm_pending';
-const USERS_KEY='cm_users';
+const cmRegMsg=document.getElementById('cmRegMsg');
 
 let currentUser=null;
 let currentUserName='';
@@ -658,17 +679,30 @@ function getPagePath(){
 }
 const cmPath=getPagePath();
 
-function getPending(){try{return JSON.parse(localStorage.getItem(PENDING_KEY)||'[]')}catch{return[]}}
-function savePending(p){localStorage.setItem(PENDING_KEY,JSON.stringify(p))}
-function getUsers(){try{return JSON.parse(localStorage.getItem(USERS_KEY)||'{}')}catch(e){return{}}}
-function saveUsers(u){localStorage.setItem(USERS_KEY,JSON.stringify(u))}
+/* TAB SWITCHING */
+window.switchTab=function(tab){
+  ['login','register','guest'].forEach(t=>{
+    const p=document.getElementById('panel'+t.charAt(0).toUpperCase()+t.slice(1));
+    const b=document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(p)p.style.display='none';
+    if(b)b.classList.remove('active');
+  });
+  const activePanel=document.getElementById('panel'+tab.charAt(0).toUpperCase()+tab.slice(1));
+  const activeTab=document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1));
+  if(activePanel)activePanel.style.display='flex';
+  if(activeTab)activeTab.classList.add('active');
+  if(cmStatusMsg)cmStatusMsg.textContent='';
+  if(cmRegMsg)cmRegMsg.textContent='';
+};
 
+/* AUTH */
 function checkAuth(){
   const saved=localStorage.getItem('cm_session');
   if(saved){
-    const users=getUsers();
-    const user=users[saved];
-    if(user&&user.approved){currentUser=saved;currentUserName=user.name;showUserPanel(user.name);return}
+    try{
+      const s=JSON.parse(saved);
+      if(s.login&&s.name){currentUser=s.login;currentUserName=s.name;showUserPanel(s.name);return;}
+    }catch(e){}
   }
   cmAuthForm.style.display='block';
   cmUserPanel.style.display='none';
@@ -678,41 +712,37 @@ cmLoginBtn.addEventListener('click',async()=>{
   const login=cmLoginInput.value.trim();
   const pass=cmPassInput.value;
   if(!login||!pass){cmStatusMsg.textContent='Заполни все поля';return}
-  
-  // Check approved users
-  const users=getUsers();
-  if(users[login]&&users[login].pass===pass&&users[login].approved){
-    currentUser=login;
-    currentUserName=users[login].name;
-    localStorage.setItem('cm_session',login);
-    showUserPanel(users[login].name);
-    cmStatusMsg.textContent='';
-  }else if(users[login]&&users[login].pass===pass&&!users[login].approved){
-    cmStatusMsg.textContent='Твой аккаунт ещё ожидает одобрения';
-  }else{
-    cmStatusMsg.textContent='Неверный логин или пароль';
-  }
+  cmLoginBtn.disabled=true;cmLoginBtn.textContent='...';
+  try{
+    const res=await fetch(cmAPI+'auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login,password:pass})});
+    const data=await res.json();
+    if(data.ok){
+      currentUser=login;currentUserName=data.name;
+      localStorage.setItem('cm_session',JSON.stringify({login,name:data.name}));
+      showUserPanel(data.name);cmStatusMsg.textContent='';
+    }else{cmStatusMsg.textContent=data.error||'Ошибка входа';}
+  }catch(e){cmStatusMsg.textContent='Ошибка соединения'}
+  cmLoginBtn.disabled=false;cmLoginBtn.textContent='Войти';
 });
 
 cmRegisterBtn.addEventListener('click',async()=>{
-  const login=cmLoginInput.value.trim();
-  const pass=cmPassInput.value;
-  const name=cmGuestName.value.trim()||login;
-  if(!login||!pass){cmStatusMsg.textContent='Введи логин и пароль';return}
-  if(login.length<3){cmStatusMsg.textContent='Логин слишком короткий';return}
-  if(pass.length<4){cmStatusMsg.textContent='Пароль слишком короткий (мин. 4 символа)';return}
-  
-  const users=getUsers();
-  if(users[login]){cmStatusMsg.textContent='Логин уже занят';return}
-  
-  // Auto-approve registration
-  users[login]={pass,name:name||login,approved:true,time:Date.now()};
-  saveUsers(users);
-  currentUser=login;
-  currentUserName=name||login;
-  localStorage.setItem('cm_session',login);
-  showUserPanel(name||login);
-  cmStatusMsg.textContent='';
+  const login=cmRegLogin.value.trim();
+  const name=cmRegName.value.trim();
+  const pass=cmRegPass.value;
+  if(!login||!pass){cmRegMsg.textContent='Введи логин и пароль';return}
+  if(login.length<3){cmRegMsg.textContent='Логин слишком короткий';return}
+  if(pass.length<4){cmRegMsg.textContent='Пароль слишком короткий';return}
+  cmRegisterBtn.disabled=true;cmRegisterBtn.textContent='...';
+  try{
+    const res=await fetch(cmAPI+'auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login,password:pass,name:name||login})});
+    const data=await res.json();
+    if(data.ok){
+      currentUser=login;currentUserName=data.name;
+      localStorage.setItem('cm_session',JSON.stringify({login,name:data.name}));
+      showUserPanel(data.name);cmRegMsg.textContent='';
+    }else{cmRegMsg.textContent=data.error||'Ошибка регистрации';}
+  }catch(e){cmRegMsg.textContent='Ошибка соединения'}
+  cmRegisterBtn.disabled=false;cmRegisterBtn.textContent='Создать аккаунт';
 });
 
 function showUserPanel(name){
@@ -723,24 +753,25 @@ function showUserPanel(name){
 }
 
 cmLogoutBtn.addEventListener('click',()=>{
-  currentUser=null;
-  currentUserName='';
+  currentUser=null;currentUserName='';
   localStorage.removeItem('cm_session');
   cmAuthForm.style.display='block';
   cmUserPanel.style.display='none';
-  cmLoginInput.value='';
-  cmPassInput.value='';
-  cmGuestName.value='';
-  cmStatusMsg.textContent='';
+  if(cmLoginInput)cmLoginInput.value='';
+  if(cmPassInput)cmPassInput.value='';
+  if(cmRegLogin)cmRegLogin.value='';
+  if(cmRegName)cmRegName.value='';
+  if(cmRegPass)cmRegPass.value='';
+  switchTab('login');
 });
 
+/* GIF */
 cmGifBtn.addEventListener('click',()=>cmGifUrl.style.display=cmGifUrl.style.display==='none'?'block':'none');
 cmGifUrl.addEventListener('input',()=>{
   const url=cmGifUrl.value.trim();
   const isGif=url&&(url.includes('.gif')||url.includes('giphy')||url.includes('tenor')||url.includes('discord'));
   if(isGif){cmGifPreview.src=url;cmGifPreview.classList.add('show')}else{cmGifPreview.classList.remove('show')}
 });
-
 cmGifBtnAuth.addEventListener('click',()=>cmGifUrlAuth.style.display=cmGifUrlAuth.style.display==='none'?'block':'none');
 cmGifUrlAuth.addEventListener('input',()=>{
   const url=cmGifUrlAuth.value.trim();
@@ -751,11 +782,9 @@ cmGifUrlAuth.addEventListener('input',()=>{
 function showSendAnimation(x,y){
   const anim=document.createElement('div');
   anim.className='cm-send-anim';
-  anim.style.left=x+'px';
-  anim.style.top=y+'px';
+  anim.style.left=x+'px';anim.style.top=y+'px';
   anim.innerHTML='<svg viewBox="0 0 24 24"><path fill="var(--a1)" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
-  document.body.appendChild(anim);
-  setTimeout(()=>anim.remove(),800);
+  document.body.appendChild(anim);setTimeout(()=>anim.remove(),800);
 }
 
 function formatDate(ts){
@@ -764,8 +793,7 @@ function formatDate(ts){
 }
 
 function checkSpam(text){
-  const now=Date.now();
-  if(now-lastPostTime<SPAM_DELAY)return'Подожди немного!';
+  if(Date.now()-lastPostTime<SPAM_DELAY)return'Подожди немного!';
   if(text.length<2)return'Слишком короткий';
   if(text.length>500)return'Слишком длинный';
   return'';
@@ -808,13 +836,11 @@ window.showReplyForm=function(time){
 
 window.sendReply=async function(time){
   const input=document.getElementById('reply-input-'+time);
-  const text=input.value.trim();
-  if(!text)return;
+  const text=input.value.trim();if(!text)return;
   const name=currentUserName||(cmGuestName.value.trim()||'Анон');
   try{
     await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,replyTo:time})});
-    input.value='';
-    document.getElementById('reply-'+time).innerHTML='';
+    input.value='';document.getElementById('reply-'+time).innerHTML='';
     await loadComments();
   }catch(e){alert('Ошибка')}
 };
@@ -822,53 +848,40 @@ window.sendReply=async function(time){
 cmSubmit.addEventListener('click',async(e)=>{
   const name=cmGuestName.value.trim()||'Анон';
   const text=cmText.value.trim();
-  const gif=cmGifPreview.src||'';
+  const gif=cmGifPreview.src&&cmGifPreview.classList.contains('show')?cmGifPreview.src:'';
   const spam=checkSpam(text);
   if(spam&&!gif){cmSpamMsg.textContent=spam;return;}
-  cmSpamMsg.textContent='';
-  lastPostTime=Date.now();
-  cmSubmit.disabled=true;
-  cmSubmit.textContent='...';
+  cmSpamMsg.textContent='';lastPostTime=Date.now();
+  cmSubmit.disabled=true;cmSubmit.textContent='...';
   showSendAnimation(e.clientX,e.clientY);
   try{
     await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,gif})});
-    cmText.value='';
-    cmGifUrl.value='';
-    cmGifPreview.classList.remove('show');
-    cmGifPreview.src='';
+    cmText.value='';cmGifUrl.value='';cmGifPreview.classList.remove('show');cmGifPreview.src='';
     await loadComments();
   }catch(e){cmSpamMsg.textContent='Ошибка'}
-  cmSubmit.disabled=false;
-  cmSubmit.textContent='Отправить как гость';
+  cmSubmit.disabled=false;cmSubmit.textContent='Отправить';
 });
 
 cmSubmitAuth.addEventListener('click',async(e)=>{
   const name=currentUserName;
   const text=cmTextAuth.value.trim();
-  const gif=cmGifPreviewAuth.src||'';
+  const gif=cmGifPreviewAuth.src&&cmGifPreviewAuth.classList.contains('show')?cmGifPreviewAuth.src:'';
   const spam=checkSpam(text);
   if(spam&&!gif){cmSpamMsgAuth.textContent=spam;return;}
-  cmSpamMsgAuth.textContent='';
-  lastPostTime=Date.now();
-  cmSubmitAuth.disabled=true;
-  cmSubmitAuth.textContent='...';
+  cmSpamMsgAuth.textContent='';lastPostTime=Date.now();
+  cmSubmitAuth.disabled=true;cmSubmitAuth.textContent='...';
   showSendAnimation(e.clientX,e.clientY);
   try{
     await fetch(cmAPI+cmPath,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,gif,author:currentUser})});
-    cmTextAuth.value='';
-    cmGifUrlAuth.value='';
-    cmGifPreviewAuth.classList.remove('show');
-    cmGifPreviewAuth.src='';
+    cmTextAuth.value='';cmGifUrlAuth.value='';cmGifPreviewAuth.classList.remove('show');cmGifPreviewAuth.src='';
     await loadComments();
   }catch(e){cmSpamMsgAuth.textContent='Ошибка'}
-  cmSubmitAuth.disabled=false;
-  cmSubmitAuth.textContent='Отправить';
+  cmSubmitAuth.disabled=false;cmSubmitAuth.textContent='Отправить';
 });
 
 checkAuth();
 loadComments();
 setInterval(loadComments,5000);
-
 /* FACTS */
 const factsList=[
   "бля, вот шкебеде вообще красава, взял помог с дизайном",
