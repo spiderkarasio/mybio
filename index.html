@@ -924,18 +924,18 @@ function renderComments(arr,hasNew){
     if(c.replies&&c.replies.length){
       repliesHtml='<div class="cm-reply-item">'+c.replies.map(r=>{
         const gifHtml=r.gif?`<img src="${r.gif}" class="cm-sticker" loading="lazy" alt="GIF" onerror="this.style.display='none'">`:'';
-        const imgHtml=r.img?`<img src="${r.img}" class="cm-thumb" onclick="openLightbox(this.src)" loading="lazy" alt="изображение">`:'';
-        return`<div class="cm-item" style="padding:8px;margin-top:4px"><div class="cm-item-header"><span class="cm-item-name">${r.name}</span><span class="cm-item-time">${formatDate(r.time)}</span></div>${gifHtml}${imgHtml}<div class="cm-item-text">${r.text}</div></div>`;
+        const imgHtml=r.image?`<img src="${r.image}" class="cm-thumb" onclick="openLightbox(this.src)" loading="lazy" alt="изображение">`:'';
+        return`<div class="cm-item" style="padding:8px;margin-top:4px"><div class="cm-item-header"><span class="cm-item-name">${r.name}</span><span class="cm-item-time">${formatDate(r.date||r.ts)}</span></div>${gifHtml}${imgHtml}<div class="cm-item-text">${r.text}</div></div>`;
       }).join('')+'</div>';
     }
     const gifHtml=c.gif?`<img src="${c.gif}" class="cm-sticker" loading="lazy" alt="GIF" onerror="this.style.display='none'">`:'';
-    const imgHtml=c.img?`<img src="${c.img}" class="cm-thumb" onclick="openLightbox(this.src)" loading="lazy" alt="изображение">`:'';
-    return`<div class="cm-item${i===0&&hasNew?newClass:''}"><div class="cm-item-header"><span class="cm-item-name">${c.name}</span><span class="cm-item-time">${formatDate(c.time)}</span></div>${gifHtml}${imgHtml}<div class="cm-item-text">${c.text}</div><div class="cm-item-actions"><button class="cm-reply-btn" onclick="showReplyForm('${c.time}')">Ответить</button></div><div id="reply-${c.time}" style="display:none"></div>${repliesHtml}</div>`;
+    const imgHtml=c.image?`<img src="${c.image}" class="cm-thumb" onclick="openLightbox(this.src)" loading="lazy" alt="изображение">`:'';
+    return`<div class="cm-item${i===0&&hasNew?newClass:''}"><div class="cm-item-header"><span class="cm-item-name">${c.name}</span><span class="cm-item-time">${formatDate(c.date||c.ts)}</span></div>${gifHtml}${imgHtml}<div class="cm-item-text">${c.text}</div><div class="cm-item-actions"><button class="cm-reply-btn" onclick="showReplyForm('${c.date||c.ts}')">Ответить</button></div><div id="reply-${c.date||c.ts}" style="display:none"></div>${repliesHtml}</div>`;
   }).join('');
 }
 
 window.showReplyForm=function(time){
-  const container=document.getElementById('reply-'+time);
+  const container=document.getElementById('reply-'+(time));
   if(container.innerHTML)return;
   container.style.display='block';
   container.innerHTML=`<div class="cm-reply-form"><input type="text" class="cm-input" id="reply-input-${time}" placeholder="Ответ..."><button class="cm-btn" onclick="sendReply('${time}')">→</button></div>`;
