@@ -243,6 +243,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 /* BEAT EFFECT */
 .beat-on{will-change:transform;transition:transform 60ms linear}
 
+/* CUSTOM CURSOR */
+*{cursor:none !important}
+#my-cursor{position:fixed;pointer-events:none;z-index:99999;top:0;left:0;transform:translate(-2px,-2px);transition:opacity .2s}
+#my-cursor svg{width:22px;height:22px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.55));display:block}
+#my-cursor-ring{position:fixed;pointer-events:none;z-index:99998;width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);top:0;left:0;transform:translate(-50%,-50%);transition:left .1s ease,top .1s ease,width .2s,height .2s,opacity .2s,border-color .2s}
+body:not(:hover) #my-cursor,body:not(:hover) #my-cursor-ring{opacity:0}
+
 /* CURSORS */
 .cursor-overlay{position:fixed;inset:0;pointer-events:none;z-index:8888}
 .cursor-dot{position:fixed;pointer-events:none;transition:left .12s linear,top .12s linear;transform:translate(-50%,-50%)}
@@ -310,6 +317,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 </style>
 </head>
 <body id="body">
+<div id="my-cursor-ring"></div>
+<div id="my-cursor"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5.5 3.5L19 12l-7 1.5L9.5 20z" fill="#ffffff" stroke="rgba(0,0,0,.5)" stroke-width="1.2"/></svg></div>
 <div id="flash"></div>
 <canvas id="bg-canvas"></canvas>
 
@@ -1108,9 +1117,29 @@ window.closeDrawModal=function(){const m=document.getElementById('drawModal');if
 document.getElementById('cmDrawBtn').addEventListener('click',()=>openDrawModal('guest'));
 document.getElementById('cmDrawBtnAuth').addEventListener('click',()=>openDrawModal('auth'));
 
+/* ── CUSTOM CURSOR ── */
+(function(){
+  const cur=document.getElementById('my-cursor');
+  const ring=document.getElementById('my-cursor-ring');
+  let rx=0,ry=0,cx=0,cy=0;
+  document.addEventListener('mousemove',e=>{
+    cx=e.clientX;cy=e.clientY;
+    cur.style.left=cx+'px';cur.style.top=cy+'px';
+  });
+  // Ring follows with lerp for smooth feel
+  (function lerp(){
+    rx+=(cx-rx)*.18;ry+=(cy-ry)*.18;
+    ring.style.left=rx+'px';ring.style.top=ry+'px';
+    requestAnimationFrame(lerp);
+  })();
+  // Squish on click
+  document.addEventListener('mousedown',()=>{ring.style.width='20px';ring.style.height='20px';ring.style.borderColor='rgba(255,255,255,.7)';});
+  document.addEventListener('mouseup',()=>{ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(255,255,255,.35)';});
+})();
+
 /* ── CURSORS ── */
 const CURSOR_API=cmAPI+'cursors';
-let cursorsOn=false,cursorPollIv=null,cursorSendIv=null;
+let cursorsOn=false,cursorPollIv=null;
 let myMouseX=0,myMouseY=0;
 const cursorOverlay=document.createElement('div');cursorOverlay.className='cursor-overlay';document.body.appendChild(cursorOverlay);
 const myCursorId='cur_'+Math.random().toString(36).slice(2,9);
@@ -1118,7 +1147,9 @@ const myCursorColor=['#a78bfa','#60a5fa','#f472b6','#34d399','#fb923c'][Math.flo
 document.addEventListener('mousemove',e=>{myMouseX=e.clientX;myMouseY=e.clientY;});
 document.addEventListener('touchmove',e=>{if(e.touches[0]){myMouseX=e.touches[0].clientX;myMouseY=e.touches[0].clientY;}},{passive:true});
 const activeCursors={};
+
 function renderCursors(list){
+  if(!cursorsOn)return;
   const seen=new Set();
   list.forEach(c=>{
     if(c.id===myCursorId)return;
@@ -1143,6 +1174,7 @@ function renderCursors(list){
   if(cnt>0){countEl.style.display='inline';countEl.textContent=cnt;}
   else{countEl.style.display='none';}
 }
+
 async function sendCursor(){
   const name=currentUserName||(document.getElementById('cmGuestName').value.trim()||'Аноним');
   try{await fetch(CURSOR_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:myCursorId,x:myMouseX,y:myMouseY,vw:innerWidth,vh:innerHeight,name,color:myCursorColor})});}catch(e){}
@@ -1150,22 +1182,29 @@ async function sendCursor(){
 async function pollCursors(){
   try{const r=await fetch(CURSOR_API);const d=await r.json();if(Array.isArray(d))renderCursors(d);}catch(e){}
 }
+
+// Всегда шлём позицию на сервер — чтобы другие видели нас даже если мы не включили тогл
+setInterval(sendCursor,500);
+sendCursor();
+// Всегда поллим — чтобы показывать других когда тогл включён
+setInterval(pollCursors,700);
+
 window.toggleCursors=function(){
   const btn=document.getElementById('cursorToggleBtn');
   cursorsOn=!cursorsOn;
   btn.classList.toggle('active',cursorsOn);
   document.getElementById('cursorBtnLabel').textContent=cursorsOn?'Онлайн':'Курсоры';
-  if(cursorsOn){
-    sendCursor();pollCursors();
-    cursorSendIv=setInterval(sendCursor,400);
-    cursorPollIv=setInterval(pollCursors,600);
-  }else{
-    clearInterval(cursorSendIv);clearInterval(cursorPollIv);
+  if(!cursorsOn){
+    // Скрываем чужие курсоры, но свою позицию продолжаем слать
     Object.keys(activeCursors).forEach(id=>{activeCursors[id].remove();delete activeCursors[id];});
     document.getElementById('cursorCount').style.display='none';
-    try{fetch(CURSOR_API+'/remove',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:myCursorId})});}catch(e){}
   }
 };
+
+// Убираем себя с сервера при уходе со страницы
+window.addEventListener('beforeunload',()=>{
+  navigator.sendBeacon(CURSOR_API+'/remove',JSON.stringify({id:myCursorId}));
+});
 /* FACTS */
 const factsList=[
   "бля, вот шкебеде вообще красава, взял помог с дизайном",
