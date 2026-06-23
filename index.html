@@ -207,10 +207,35 @@
     }
     .play-btn:active { filter: brightness(.92); }
     .play-btn svg { width: 22px; height: 22px; fill: currentColor; }
-    .player-meta { min-width: 0; }
+    .player-meta { min-width: 0; flex: 1; }
     .player-meta strong { display: block; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .spotify-embed { display: none; width: 100%; height: 80px; border: 0; border-radius: var(--shape-sm); margin-top: 14px; }
-    .spotify-embed.is-active { display: block; }
+
+    /* M3 volume slider */
+    .volume {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 14px;
+      color: var(--on-surface-variant);
+    }
+    .volume svg { width: 20px; height: 20px; flex: 0 0 auto; fill: currentColor; }
+    .volume input[type="range"] {
+      -webkit-appearance: none; appearance: none;
+      flex: 1; height: 4px; margin: 0;
+      border-radius: var(--shape-full);
+      background: var(--surface-container-highest);
+      cursor: pointer;
+    }
+    .volume input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 0;
+    }
+    .volume input[type="range"]::-moz-range-thumb {
+      width: 16px; height: 16px;
+      border: 0; border-radius: 50%;
+      background: var(--primary);
+    }
 
     /* ---- socials grid ---- */
     .socials {
@@ -240,10 +265,10 @@
     .social strong { font-size: 14px; font-weight: 600; }
 
     /* ---- comments ---- */
-    .comments { padding: 16px; background: #2F3335 !important; }
+    .comments { padding: 16px; background: #15202B !important; }
     .comments h2 { margin: 0 0 14px; font-size: 16px; font-weight: 600; }
-    .comments-mount { min-height: 120px; background: #2F3335; border-radius: var(--shape-md); }
-    .comments-mount iframe { background: #2F3335 !important; }
+    .comments-mount { min-height: 120px; background: #15202B; border-radius: var(--shape-md); }
+    .comments-mount iframe { background: #15202B !important; }
     .comments-fallback { margin: 0; color: var(--on-surface-variant); font-size: 13px; }
 
     /* ---- footer ---- */
@@ -305,7 +330,10 @@
             <strong id="playerTitle">fallback</strong>
           </div>
         </div>
-        <iframe class="spotify-embed" id="spotifyEmbed" title="Spotify" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        <div class="volume" id="volumeControl">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12Z"/></svg>
+          <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7" aria-label="громкость" />
+        </div>
         <audio id="lofiAudio" preload="none" loop></audio>
       </section>
 
@@ -355,7 +383,7 @@
     const PAUSE = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
 
     const $ = (s) => document.querySelector(s);
-    const state = { nick: 2, start: 0, end: 0, timer: 0, spotifyTrackId: "" };
+    const state = { nick: 2, start: 0, end: 0, timer: 0 };
 
     function safeHref(url) { return url && url !== "#" ? url : "#"; }
 
@@ -384,6 +412,7 @@
       $("#avatar").src = PROFILE.avatar;
       document.querySelectorAll("[data-social]").forEach((a) => a.href = safeHref(PROFILE.socials[a.dataset.social]));
       $("#lofiAudio").src = PROFILE.fallbackTrack.src;
+      $("#lofiAudio").volume = Number($("#volume").value);
       $("#playerTitle").textContent = PROFILE.fallbackTrack.title;
       setNick(state.nick, true);
     }
@@ -402,21 +431,6 @@
       $("#duration").textContent = fmt(total);
       $("#bar").style.width = `${Math.round((elapsed / total) * 100)}%`;
       if (elapsed >= total) stopProgress();
-    }
-
-    function setSpotifyPlayer(trackId) {
-      const embed = $("#spotifyEmbed");
-      if (!trackId) {
-        embed.classList.remove("is-active");
-        embed.removeAttribute("src");
-        state.spotifyTrackId = "";
-        return;
-      }
-      if (state.spotifyTrackId !== trackId) {
-        embed.src = `https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`;
-        state.spotifyTrackId = trackId;
-      }
-      embed.classList.add("is-active");
     }
 
     function setFallbackPlayer(active) {
@@ -445,7 +459,6 @@
       $("#duration").textContent = "∞";
       $("#bar").style.width = "100%";
       $("#presenceText").textContent = "lofi fallback";
-      setSpotifyPlayer("");
       setFallbackPlayer(true);
     }
 
@@ -474,7 +487,6 @@
         $("#trackArtist").textContent = `${sp.artist || "Unknown artist"} · ${sp.album || ""}`;
         $("#presenceText").textContent = "listening on Spotify";
         $("#trackLink").href = sp.track_id ? `https://open.spotify.com/track/${sp.track_id}` : PROFILE.socials.spotify;
-        setSpotifyPlayer(sp.track_id || "");
 
         if (sp.album_art_url) { $("#cover").src = sp.album_art_url; $("#cover").hidden = false; }
 
@@ -511,6 +523,7 @@
 
     $("#nickButton").addEventListener("click", nextNick);
     $("#playButton").addEventListener("click", toggleLofi);
+    $("#volume").addEventListener("input", (e) => { $("#lofiAudio").volume = Number(e.target.value); });
 
     setInterval(nextNick, 3200);
     setInterval(tickClock, 15000);
