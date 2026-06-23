@@ -2,612 +2,278 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#080b14" />
-  <title>spiderkaras — bio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101418" />
+  <title>spiderkaras</title>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600;8..144,700&display=swap');
+
+    /* ---- Material 3 dark color roles ---- */
     :root {
       color-scheme: dark;
-      --bg: #080b14;
-      --surface: rgba(24,28,39,.84);
-      --surface-2: rgba(211,227,253,.08);
-      --surface-3: rgba(211,227,253,.13);
-      --surface-container: rgba(28,33,46,.92);
-      --surface-container-high: rgba(38,44,59,.92);
-      --primary: #d3e3fd;
-      --on-primary: #0d1b2a;
-      --primary-container: rgba(211,227,253,.18);
-      --secondary-container: rgba(198,238,224,.15);
-      --line: rgba(211,227,253,.12);
-      --line-2: rgba(211,227,253,.22);
-      --text: #f2f5ff;
-      --muted: rgba(242,245,255,.68);
-      --muted-2: rgba(242,245,255,.44);
-      --accent: #d3e3fd;
-      --accent-2: #c6eee0;
-      --accent-3: #f1d0ff;
-      --radius: 32px;
-      --radius-sm: 22px;
-      --shadow: 0 8px 24px rgba(0,0,0,.28);
-      --max: 1080px;
+
+      --primary: #a8c7fa;
+      --on-primary: #062e6f;
+      --primary-container: #284777;
+      --on-primary-container: #d3e3fd;
+
+      --secondary: #bfc6dc;
+      --secondary-container: #3c4358;
+      --on-secondary-container: #dbe1f9;
+
+      --tertiary: #d6bee4;
+      --tertiary-container: #523f61;
+      --on-tertiary-container: #f2daff;
+
+      --surface: #101418;
+      --surface-dim: #101418;
+      --surface-bright: #36393e;
+      --surface-container-lowest: #0b0e12;
+      --surface-container-low: #181c20;
+      --surface-container: #1c2024;
+      --surface-container-high: #272a2f;
+      --surface-container-highest: #32353a;
+
+      --on-surface: #e1e2e8;
+      --on-surface-variant: #c3c6cf;
+      --outline: #8d9199;
+      --outline-variant: #43474e;
+
+      /* M3 shape scale */
+      --shape-xs: 8px;
+      --shape-sm: 12px;
+      --shape-md: 16px;
+      --shape-lg: 20px;
+      --shape-xl: 28px;
+      --shape-full: 999px;
+
+      --easing: cubic-bezier(.2, 0, 0, 1);
+      --max: 480px;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html { scroll-behavior: smooth; }
 
     body {
       min-height: 100svh;
       margin: 0;
-      font-family: Fredoka, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 16% 10%, rgba(211,227,253,.22), transparent 340px),
-        radial-gradient(circle at 86% 24%, rgba(198,238,224,.16), transparent 320px),
-        radial-gradient(circle at 52% 100%, rgba(241,208,255,.10), transparent 360px),
-        linear-gradient(135deg, #070912, #0b1020 48%, #070a12);
+      font-family: "Roboto Flex", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--on-surface);
+      background: var(--surface);
       overflow-x: hidden;
     }
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      opacity: .14;
-      background-image:
-        linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.065) 1px, transparent 1px);
-      background-size: 88px 88px;
-      pointer-events: none;
-    }
-
     a { color: inherit; text-decoration: none; }
-    button { font: inherit; color: inherit; }
+    button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
 
+    /* ---- mobile-first shell ---- */
     .page {
-      width: min(var(--max), calc(100% - 28px));
+      width: 100%;
+      max-width: var(--max);
       margin: 0 auto;
-      padding: 24px 0;
+      padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+      display: grid;
+      gap: 12px;
     }
 
-    .shell {
-      position: relative;
-      overflow: clip;
-      border: 1px solid var(--line);
-      border-radius: 40px;
-      background:
-        linear-gradient(180deg, rgba(211,227,253,.08), rgba(255,255,255,.02)),
-        rgba(8,11,20,.82);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px) saturate(1.08);
-      -webkit-backdrop-filter: blur(12px) saturate(1.08);
+    /* M3 cards = surface container, extra-large shape */
+    .card {
+      background: var(--surface-container);
+      border-radius: var(--shape-xl);
+      overflow: hidden;
     }
 
-    .topbar {
+    /* ---- top app bar ---- */
+    .appbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 14px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(255,255,255,.025);
+      padding: 6px 4px;
     }
-
-    .brand, .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      min-height: 40px;
-      padding: 8px 16px;
-      border-radius: 999px;
-      border: 1px solid transparent;
-      background: var(--primary-container);
-      color: var(--primary);
-      font-weight: 750;
-      letter-spacing: -.02em;
-    }
-
-    .brand strong { color: var(--text); }
-    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 18px rgba(142,230,207,.72); }
-
-    .grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
-      gap: 14px;
-      padding: 14px;
-    }
-
-    .card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background:
-        linear-gradient(145deg, rgba(211,227,253,.075), rgba(255,255,255,.018)),
-        var(--surface-container);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.065), 0 2px 10px rgba(0,0,0,.16);
-      content-visibility: auto;
-      contain-intrinsic-size: 260px;
-    }
-
-    .hero {
-      position: relative;
-      min-height: 540px;
-      padding: clamp(26px, 5vw, 54px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 34px;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      width: min(54vw, 420px);
-      height: min(54vw, 420px);
-      right: -150px;
-      top: -120px;
-      border-radius: 999px;
-      background: var(--primary-container);
-      filter: blur(6px);
-      opacity: .75;
-      pointer-events: none;
-    }
-
-    .hero > * { position: relative; }
-
-    .chips { display: flex; flex-wrap: wrap; gap: 9px; }
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 34px;
-      padding: 7px 11px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: var(--surface-2);
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 780;
-    }
-
-    .icon {
-      width: 20px;
-      height: 20px;
-      display: inline-grid;
-      place-items: center;
-      border-radius: 8px;
-      background: rgba(255,255,255,.08);
-      font-size: 12px;
-      line-height: 1;
-    }
-
-    .mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      letter-spacing: -.02em;
-    }
-
-    .eyebrow {
-      margin: 0 0 12px;
-      color: var(--accent-2);
-      font: 750 13px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    }
-
-    h1 {
-      margin: 0;
-      padding: .08em 0 .12em;
-      font-size: clamp(46px, 8vw, 102px);
-      line-height: 1.03;
-      letter-spacing: -.045em;
-      text-wrap: balance;
-      overflow: visible;
-      overflow-wrap: anywhere;
-    }
-
-    .grad {
-      display: inline-block;
-      padding: .03em .025em .08em;
-      margin: -.03em -.025em -.08em;
-      color: transparent;
-      background: linear-gradient(110deg, #fff, var(--accent) 45%, var(--accent-2) 80%);
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-
-    .lead {
-      max-width: 680px;
-      margin: 22px 0 0;
-      color: var(--muted);
-      font-size: clamp(16px, 2vw, 20px);
-      line-height: 1.72;
-    }
-
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      min-height: 48px;
-      padding: 0 20px;
-      border: 1px solid transparent;
-      border-radius: 22px;
-      background: var(--secondary-container);
-      color: var(--accent-2);
-      font-weight: 850;
-      cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0,0,0,.18);
-      transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
-      will-change: transform;
-    }
-
-    .btn:hover { transform: translateY(-2px); background: rgba(198,238,224,.22); box-shadow: 0 4px 12px rgba(0,0,0,.22); }
-    .btn.primary { color: var(--on-primary); border-color: transparent; background: var(--primary); }
-
-    .side { display: grid; gap: 14px; align-content: start; }
-
-    .profile {
-      display: grid;
-      grid-template-columns: 82px minmax(0, 1fr);
-      gap: 14px;
-      align-items: center;
-      padding: 16px;
-    }
-
-    .avatar {
-      position: relative;
-      width: 82px;
-      aspect-ratio: 1;
-      padding: 2px;
-      border-radius: 26px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-3), var(--accent-2));
-    }
-
-    .avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      border-radius: 24px;
-      background: #0d1320;
-    }
-
-    .avatar::after {
-      content: "";
-      position: absolute;
-      right: 5px;
-      bottom: 5px;
-      width: 15px;
-      height: 15px;
-      border: 3px solid #0d1320;
-      border-radius: 50%;
-      background: var(--accent-2);
-    }
-
-    .name-line {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .profile h2 {
-      margin: 0;
-      min-width: 0;
-      max-width: 100%;
-      padding: .04em .02em .09em;
-      font-size: 26px;
-      line-height: 1.08;
-      letter-spacing: -.035em;
-      overflow: visible;
-      text-overflow: clip;
-      white-space: nowrap;
-    }
-
-    .ghost-btn {
-      width: 32px;
-      height: 32px;
-      border: 1px solid var(--line);
-      border-radius: 13px;
-      background: rgba(255,255,255,.045);
-      color: var(--muted);
-      cursor: pointer;
-    }
-
-    .ghost-btn:hover { background: rgba(255,255,255,.085); color: var(--text); }
-    .profile p { margin: 7px 0 0; color: var(--muted); line-height: 1.52; }
-
-    .badges { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
-    .badge {
-      padding: 6px 8px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(185,199,255,.08);
-      color: rgba(242,245,255,.78);
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .desktop {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      padding: 14px;
-    }
-
-    .widget {
-      border: 1px solid transparent;
-      border-radius: 26px;
-      background: var(--surface-container-high);
-      overflow: hidden;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-    }
-
-    .window-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 11px 14px;
-      border-bottom: 1px solid var(--line);
-      color: var(--primary);
-      font: 800 13px/1.2 Fredoka, ui-sans-serif, system-ui, sans-serif;
+    .appbar .title {
+      font-size: 22px;
+      font-weight: 600;
       letter-spacing: -.01em;
     }
-
-    .window-body { padding: 11px; }
-    .stats { display: grid; gap: 8px; }
-    .stat { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 13px; }
-    .stat b { color: var(--text); text-align: right; }
-
-    .fact-card {
-      grid-column: 1 / -1;
-      min-height: 96px;
-    }
-
-    .fact-text {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.58;
-      font-size: 14px;
-    }
-
-    .fact-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .mini-btn {
-      min-height: 32px;
-      padding: 0 10px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255,255,255,.045);
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    .mini-btn:hover { background: rgba(255,255,255,.085); color: var(--text); }
-
-    .socials {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 9px;
-    }
-
-    .social {
-      min-height: 70px;
-      padding: 14px;
-      border: 1px solid transparent;
-      border-radius: 24px;
-      background: var(--surface-container-high);
-      transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
-      will-change: transform;
-    }
-
-    .social:hover { transform: translateY(-2px); background: rgba(211,227,253,.12); box-shadow: 0 4px 12px rgba(0,0,0,.18); }
-    .social i { display: grid; place-items: center; width: 34px; height: 34px; margin-bottom: 8px; border-radius: 16px; background: var(--primary-container); color: var(--primary); font-style: normal; }
-    .social i svg { width: 18px; height: 18px; fill: currentColor; display: block; }
-    .social strong { display: block; font-size: 14px; }
-    .social small { display: block; margin-top: 3px; color: var(--muted-2); font-weight: 750; }
-
-    .rpc { padding: 15px; }
-    .rpc-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 12px; }
-    .rpc-head strong { letter-spacing: -.03em; }
-    .rpc-head span { color: var(--muted-2); font: 800 12px/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-
-    .track {
-      display: grid;
-      grid-template-columns: 76px minmax(0, 1fr);
-      gap: 12px;
-      align-items: center;
-    }
-
-    .cover {
-      width: 76px;
-      aspect-ratio: 1;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      overflow: hidden;
-      background: linear-gradient(135deg, rgba(185,199,255,.22), rgba(142,230,207,.16));
-    }
-
-    .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .track h3 { margin: 0; font-size: 18px; letter-spacing: -.04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .track p { margin: 6px 0 0; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .progress { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 9px; align-items: center; margin-top: 12px; color: var(--muted-2); font: 750 12px/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    .bar { height: 7px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.09); }
-    .bar i { display: block; width: 0%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .6s linear; }
-
-    .music-player {
-      display: grid;
-      gap: 9px;
-      margin-top: 12px;
-    }
-
-    .music-controls {
-      display: flex;
+    .appbar .status {
+      display: inline-flex;
       align-items: center;
       gap: 8px;
-    }
-
-    .play-btn {
-      width: 38px;
-      height: 38px;
-      flex: 0 0 auto;
-      border: 1px solid var(--line-2);
-      border-radius: 15px;
-      background: linear-gradient(135deg, rgba(185,199,255,.24), rgba(142,230,207,.16));
-      color: var(--text);
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 900;
-    }
-
-    .play-btn:hover { background: rgba(255,255,255,.09); }
-
-    .player-meta {
-      min-width: 0;
-      display: grid;
-      gap: 3px;
-    }
-
-    .player-meta strong {
+      height: 32px;
+      padding: 0 12px 0 10px;
+      border-radius: var(--shape-xs);
+      background: var(--secondary-container);
+      color: var(--on-secondary-container);
       font-size: 13px;
+      font-weight: 500;
+      max-width: 60%;
+    }
+    .status .dot {
+      width: 8px; height: 8px; flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+    .status span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ---- hero / profile ---- */
+    .profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 14px;
+      padding: 32px 20px 26px;
+      background:
+        radial-gradient(120% 90% at 50% -10%, var(--primary-container), transparent 60%),
+        var(--surface-container);
+    }
+    .avatar {
+      width: 104px; height: 104px;
+      border-radius: var(--shape-full);
+      padding: 3px;
+      background: linear-gradient(135deg, var(--primary), var(--tertiary));
+    }
+    .avatar img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: var(--shape-full);
+      background: var(--surface-container-high);
+      display: block;
+    }
+    .name-row { display: inline-flex; align-items: center; gap: 6px; }
+    .profile h1 {
+      margin: 0;
+      font-size: clamp(28px, 8vw, 36px);
+      font-weight: 700;
       letter-spacing: -.02em;
-      white-space: nowrap;
+    }
+
+    .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .chip {
+      height: 32px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: var(--shape-xs);
+      border: 1px solid var(--outline-variant);
+      color: var(--on-surface-variant);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* M3 icon button (filled tonal) */
+    .icon-btn {
+      width: 40px; height: 40px;
+      flex: 0 0 auto;
+      display: grid; place-items: center;
+      border-radius: var(--shape-full);
+      background: var(--surface-container-highest);
+      color: var(--on-surface-variant);
+      transition: background .15s var(--easing);
+    }
+    .icon-btn:hover, .icon-btn:active { background: var(--primary-container); color: var(--on-primary-container); }
+    .icon-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+    /* ---- now playing ---- */
+    .np { padding: 16px; }
+    .np-head {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 14px;
+      color: var(--on-surface-variant);
+      font-size: 13px; font-weight: 600;
+      letter-spacing: .04em; text-transform: uppercase;
+    }
+    .np-head .eq { display: inline-flex; gap: 2px; align-items: flex-end; height: 14px; }
+    .np-head .eq i { width: 3px; background: var(--primary); border-radius: 2px; animation: eq 1s var(--easing) infinite; }
+    .np-head .eq i:nth-child(1){ height: 6px; animation-delay: -.2s; }
+    .np-head .eq i:nth-child(2){ height: 12px; animation-delay: -.5s; }
+    .np-head .eq i:nth-child(3){ height: 8px; animation-delay: 0s; }
+    @keyframes eq { 0%,100%{ transform: scaleY(.4);} 50%{ transform: scaleY(1);} }
+
+    .track { display: grid; grid-template-columns: 64px minmax(0,1fr); gap: 14px; align-items: center; }
+    .cover {
+      width: 64px; height: 64px;
+      border-radius: var(--shape-sm);
       overflow: hidden;
-      text-overflow: ellipsis;
+      background: var(--surface-container-high);
     }
+    .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .track h2 { margin: 0; font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track p { margin: 4px 0 0; color: var(--on-surface-variant); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .player-meta small {
-      color: var(--muted-2);
-      font-size: 12px;
-      font-weight: 750;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .progress { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; margin-top: 14px; color: var(--on-surface-variant); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .bar { height: 4px; border-radius: var(--shape-full); background: var(--surface-container-highest); overflow: hidden; }
+    .bar i { display: block; width: 0%; height: 100%; background: var(--primary); border-radius: inherit; transition: width .6s linear; }
+
+    /* fallback player */
+    .player { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+    .play-btn {
+      width: 48px; height: 48px;
+      flex: 0 0 auto;
+      display: grid; place-items: center;
+      border-radius: var(--shape-full);
+      background: var(--primary);
+      color: var(--on-primary);
+      transition: filter .15s var(--easing);
     }
-
-    .spotify-embed {
-      display: none;
-      width: 100%;
-      height: 80px;
-      border: 0;
-      border-radius: 16px;
-      background: rgba(255,255,255,.045);
-    }
-
+    .play-btn:active { filter: brightness(.92); }
+    .play-btn svg { width: 22px; height: 22px; fill: currentColor; }
+    .player-meta { min-width: 0; }
+    .player-meta strong { display: block; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .spotify-embed { display: none; width: 100%; height: 80px; border: 0; border-radius: var(--shape-sm); margin-top: 14px; }
     .spotify-embed.is-active { display: block; }
 
-    .player-note {
-      margin: 0;
-      color: var(--muted-2);
-      font-size: 12px;
-      line-height: 1.45;
+    /* ---- socials grid ---- */
+    .socials {
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
     }
-
-    .setup { display: none; margin-top: 12px; padding: 11px; border: 1px solid rgba(255,210,160,.22); border-radius: 16px; background: rgba(255,210,160,.075); color: rgba(255,238,218,.82); font-size: 13px; line-height: 1.55; }
-
-    .comments {
-      grid-column: 1 / -1;
-      padding: 16px;
-      min-height: 320px;
+    .social {
+      display: flex; align-items: center; gap: 12px;
+      min-height: 64px;
+      padding: 12px 14px;
+      border-radius: var(--shape-md);
+      background: var(--surface-container-high);
+      transition: background .15s var(--easing), transform .15s var(--easing);
     }
-
-    .section-head {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 12px;
+    .social:active { transform: scale(.97); }
+    .social:hover { background: var(--surface-container-highest); }
+    .social i {
+      width: 40px; height: 40px; flex: 0 0 auto;
+      display: grid; place-items: center;
+      border-radius: var(--shape-full);
+      background: var(--primary-container);
+      color: var(--on-primary-container);
     }
+    .social i svg { width: 20px; height: 20px; fill: currentColor; }
+    .social strong { font-size: 14px; font-weight: 600; }
 
-    .section-head h2 { margin: 0; font-size: 24px; letter-spacing: -.05em; }
-    .section-head p { margin: 5px 0 0; color: var(--muted-2); font-size: 13px; }
+    /* ---- comments ---- */
+    .comments { padding: 16px; }
+    .comments h2 { margin: 0 0 14px; font-size: 16px; font-weight: 600; }
+    .comments-mount { min-height: 120px; }
+    .comments-fallback { margin: 0; color: var(--on-surface-variant); font-size: 13px; }
 
-    .comments-mount {
-      min-height: 240px;
-      padding: 10px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: rgba(255,255,255,.035);
-    }
-
-    .comments-fallback {
-      margin: 0;
-      color: var(--muted-2);
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
+    /* ---- footer ---- */
     .footer {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 14px;
-      border-top: 1px solid var(--line);
-      color: var(--muted-2);
-      font-size: 13px;
-      font-weight: 760;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 4px 6px;
+      color: var(--on-surface-variant);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
     }
 
-    .smooth-text {
-      display: inline-block;
-      transform-origin: center;
-      transition: opacity .28s ease, transform .28s ease, filter .28s ease;
-      will-change: opacity, transform, filter;
-    }
+    /* text swap animation */
+    .smooth-text { display: inline-block; transition: opacity .25s var(--easing), transform .25s var(--easing); }
+    .smooth-text.is-changing { opacity: 0; transform: translateY(4px); }
 
-    .smooth-text.is-changing {
-      opacity: 0;
-      transform: translateY(6px) scale(.99);
-      filter: blur(3px);
-    }
-
-    #factText {
-      transition: opacity .26s ease, transform .26s ease, filter .26s ease;
-      will-change: opacity, transform, filter;
-    }
-
-    #factText.is-changing {
-      opacity: 0;
-      transform: translateY(6px);
-      filter: blur(4px);
-    }
-
-    .kbd {
-      padding: 5px 8px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgba(255,255,255,.045);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      color: var(--muted);
-    }
-
-    @media (max-width: 860px) {
-      .grid { grid-template-columns: 1fr; }
-      .hero { min-height: 500px; }
-    }
-
-    @media (max-width: 560px) {
-      .page { width: min(100% - 18px, var(--max)); padding: 9px 0; }
-      .topbar, .grid, .footer { padding: 10px; }
-      .pill { display: none; }
-      .hero { padding: 22px; min-height: 520px; }
-      .desktop { grid-template-columns: 1fr; }
-      .fact-card { grid-column: auto; }
-      .profile { grid-template-columns: 1fr; }
-      .socials { grid-template-columns: 1fr; }
-      h1 { font-size: clamp(50px, 18vw, 86px); }
+    /* ---- scale up on larger screens (mobile-first) ---- */
+    @media (min-width: 600px) {
+      :root { --max: 520px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -617,123 +283,74 @@
 </head>
 <body>
   <main class="page">
-    <section class="shell" aria-label="spiderkaras bio">
-      <header class="topbar">
-        <a class="brand" href="#top" aria-label="home"><span class="dot"></span><span><strong id="brandNick" class="smooth-text">spiderkaras</strong>.fun</span></a>
-        <div class="pill"><span id="presenceText">music rpc / online</span></div>
-      </header>
+    <header class="appbar">
+      <div class="title smooth-text" id="brandNick">spiderkaras</div>
+      <div class="status"><span class="dot"></span><span id="presenceText">online</span></div>
+    </header>
 
-      <div class="grid" id="top">
-        <section class="card hero">
+    <section class="card profile">
+        <div class="avatar"><img id="avatar" src="./picture.png" alt="avatar" /></div>
+        <div class="name-row">
+          <h1 id="nickname" class="smooth-text">spiderkaras</h1>
+          <button class="icon-btn" id="nickButton" type="button" aria-label="сменить ник">
+            <svg viewBox="0 0 24 24"><path d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-9.58 2H5.26A7 7 0 0 0 19 13c0-3.87-3.13-7-7-7Z"/></svg>
+          </button>
+        </div>
+        <div class="chips">
+          <span class="chip">web-dev</span>
+          <span class="chip">music</span>
+          <span class="chip">geoguessr</span>
+          <span class="chip">forza</span>
+        </div>
+      </section>
+
+      <section class="card np" id="rpc">
+        <div class="np-head"><span class="eq"><i></i><i></i><i></i></span><span>now playing</span></div>
+        <a class="track" id="trackLink" href="#" target="_blank" rel="noreferrer">
+          <div class="cover"><img id="cover" alt="" hidden /></div>
           <div>
-            <p class="eyebrow">profile loaded • Material You mode</p>
-            <h1><span class="grad smooth-text" id="heroNickA">spider</span><br /><span class="grad smooth-text" id="heroNickB">karas</span></h1>
-            <p class="lead">
-              Привет, я <span class="mono smooth-text" id="leadNick">spiderkaras</span> — делаю аккуратные bio, люблю инди-игры, GeoGuessr, музыку, Forza и мягкий liquid glass вайб.
-            </p>
+            <h2 id="trackTitle">—</h2>
+            <p id="trackArtist">—</p>
           </div>
+        </a>
+        <div class="progress"><span id="elapsed">0:00</span><div class="bar"><i id="bar"></i></div><span id="duration">0:00</span></div>
 
-          <div class="actions">
-            <a class="btn" href="#socials"><span class="icon">@</span>socials</a>
-            <a class="btn" href="#rpc"><span class="icon">♪</span>now playing</a>
-            <a class="btn" href="#comments"><span class="icon">✦</span>comments</a>
+        <div class="player" id="lofiControls">
+          <button class="play-btn" id="playButton" type="button" aria-label="play / pause">
+            <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <div class="player-meta">
+            <strong id="playerTitle">fallback</strong>
           </div>
-        </section>
+        </div>
+        <iframe class="spotify-embed" id="spotifyEmbed" title="Spotify" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        <audio id="lofiAudio" preload="none" loop></audio>
+      </section>
 
-        <aside class="side">
-          <section class="card profile">
-            <div class="avatar"><img id="avatar" src="./picture.png" alt="avatar" loading="lazy" /></div>
-            <div>
-              <div class="name-line">
-                <h2 id="nickname" class="smooth-text">spiderkaras</h2>
-                <button class="ghost-btn" id="nickButton" type="button" title="сменить ник">↻</button>
-              </div>
-              <p id="tagline">verified &lt;/&gt; dev · soft glass pixels</p>
-              <div class="badges">
-                <span class="badge">web-dev</span>
-                <span class="badge">music</span>
-                <span class="badge">geoguessr</span>
-                <span class="badge">Forza</span>
-              </div>
-            </div>
-          </section>
+      <section class="card socials" id="socials">
+        <a class="social" data-social="steam" target="_blank" rel="noreferrer"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11.98 0C5.68 0 .51 4.86.02 11.04l6.43 2.66a3.38 3.38 0 0 1 1.91-.59h.19l2.86-4.14v-.06a4.57 4.57 0 1 1 4.57 4.53h-.11l-4.07 2.9v.16a3.39 3.39 0 0 1-6.72.67L.44 15.27A12 12 0 1 0 11.98 0Zm-3.62 18.75a2.25 2.25 0 0 0 2.24-2.25 2.25 2.25 0 0 0-2.24-2.24c-.17 0-.33.02-.49.05l1.07.44a1.66 1.66 0 1 1-1.29 3.06l-1-.42a2.24 2.24 0 0 0 1.71 1.36Zm7.62-6.83a3.01 3.01 0 1 0 0-6.02 3.01 3.01 0 0 0 0 6.02Zm0-.75a2.26 2.26 0 1 1 0-4.52 2.26 2.26 0 0 1 0 4.52Z"/></svg></i><strong>Steam</strong></a>
+        <a class="social" data-social="discord" target="_blank" rel="noreferrer"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.32 4.37A19.79 19.79 0 0 0 15.37 2c-.22.39-.47.92-.64 1.34a18.27 18.27 0 0 0-5.46 0A13.5 13.5 0 0 0 8.63 2a19.74 19.74 0 0 0-4.95 2.38C.55 9.04-.3 13.59.12 18.08a19.9 19.9 0 0 0 6.07 3.07c.49-.67.92-1.38 1.29-2.13-.71-.27-1.38-.6-2.02-.97.17-.12.33-.25.49-.38a14.2 14.2 0 0 0 12.1 0l.49.38c-.64.38-1.32.7-2.02.97.37.75.8 1.46 1.29 2.13a19.86 19.86 0 0 0 6.07-3.07c.5-5.2-.85-9.72-3.56-13.71ZM8.02 15.33c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.1 2.15 2.42 0 1.33-.95 2.41-2.15 2.41Zm7.96 0c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.1 2.15 2.42 0 1.33-.95 2.41-2.15 2.41Z"/></svg></i><strong>Discord</strong></a>
+        <a class="social" data-social="spotify" target="_blank" rel="noreferrer"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24Zm5.52 17.34c-.24.36-.66.48-1.02.24-2.82-1.74-6.36-2.1-10.56-1.14-.42.12-.78-.18-.9-.54-.12-.42.18-.78.54-.9 4.56-1.02 8.52-.6 11.64 1.32.42.18.48.66.3 1.02Zm1.44-3.3c-.3.42-.84.6-1.26.3-3.24-1.98-8.16-2.58-11.94-1.38-.48.12-1.02-.12-1.14-.6-.12-.48.12-1.02.6-1.14 4.38-1.32 9.78-.66 13.5 1.62.36.18.54.78.24 1.2Zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.3c-.6.18-1.2-.18-1.38-.72-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.72 1.62.54.3.72 1.02.42 1.56-.3.42-1.02.6-1.56.3Z"/></svg></i><strong>Spotify</strong></a>
+        <a class="social" data-social="tiktok" target="_blank" rel="noreferrer"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 1 1-2.08-2.77V9.4a6.34 6.34 0 1 0 5.53 6.29V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76c-.35 0-.68-.03-1.01-.07Z"/></svg></i><strong>TikTok</strong></a>
+        <a class="social" data-social="telegram" target="_blank" rel="noreferrer"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24Zm5.56 7.98-1.8 8.47c-.13.6-.49.75-.99.47l-2.74-2.02-1.32 1.27c-.15.15-.27.27-.55.27l.2-2.79 5.08-4.59c.22-.2-.05-.31-.34-.11l-6.28 3.95-2.7-.84c-.59-.18-.6-.59.12-.87l10.56-4.07c.49-.18.92.12.76.86Z"/></svg></i><strong>Telegram</strong></a>
+      </section>
 
-          <section class="card desktop" aria-label="about info">
+      <section class="card comments" id="comments">
+        <h2>Комментарии</h2>
+        <div class="comments-mount" id="commentsMount">
+          <p class="comments-fallback">загрузка…</p>
+        </div>
+      </section>
 
-            <div class="widget fact-card">
-              <div class="window-title"><span>random-fact.txt</span><button class="mini-btn" id="factButton" type="button">random</button></div>
-              <div class="window-body">
-                <p class="fact-text" id="factText">loading fact...</p>
-                <div class="fact-actions">
-                  <button class="mini-btn" id="prevFact" type="button">prev</button>
-                  <button class="mini-btn" id="nextFact" type="button">next</button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="card desktop" id="socials" aria-label="social links">
-            <div class="socials">
-              <a class="social" data-social="steam" target="_blank" rel="noreferrer"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11.98 0C5.68 0 .51 4.86.02 11.04l6.43 2.66a3.38 3.38 0 0 1 1.91-.59h.19l2.86-4.14v-.06a4.57 4.57 0 1 1 4.57 4.53h-.11l-4.07 2.9v.16a3.39 3.39 0 0 1-6.72.67L.44 15.27A12 12 0 1 0 11.98 0Zm-3.62 18.75a2.25 2.25 0 0 0 2.24-2.25 2.25 2.25 0 0 0-2.24-2.24c-.17 0-.33.02-.49.05l1.07.44a1.66 1.66 0 1 1-1.29 3.06l-1-.42a2.24 2.24 0 0 0 1.71 1.36Zm7.62-6.83a3.01 3.01 0 1 0 0-6.02 3.01 3.01 0 0 0 0 6.02Zm0-.75a2.26 2.26 0 1 1 0-4.52 2.26 2.26 0 0 1 0 4.52Z"/></svg></i><strong>Steam</strong><small>spiderkaras</small></a>
-              <a class="social" data-social="discord" target="_blank" rel="noreferrer"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.32 4.37A19.79 19.79 0 0 0 15.37 2c-.22.39-.47.92-.64 1.34a18.27 18.27 0 0 0-5.46 0A13.5 13.5 0 0 0 8.63 2a19.74 19.74 0 0 0-4.95 2.38C.55 9.04-.3 13.59.12 18.08a19.9 19.9 0 0 0 6.07 3.07c.49-.67.92-1.38 1.29-2.13-.71-.27-1.38-.6-2.02-.97.17-.12.33-.25.49-.38a14.2 14.2 0 0 0 12.1 0l.49.38c-.64.38-1.32.7-2.02.97.37.75.8 1.46 1.29 2.13a19.86 19.86 0 0 0 6.07-3.07c.5-5.2-.85-9.72-3.56-13.71ZM8.02 15.33c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.1 2.15 2.42 0 1.33-.95 2.41-2.15 2.41Zm7.96 0c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.42 2.15-2.42 1.2 0 2.17 1.1 2.15 2.42 0 1.33-.95 2.41-2.15 2.41Z"/></svg></i><strong>Discord</strong><small>rpc / dm</small></a>
-              <a class="social" data-social="spotify" target="_blank" rel="noreferrer"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24Zm5.52 17.34c-.24.36-.66.48-1.02.24-2.82-1.74-6.36-2.1-10.56-1.14-.42.12-.78-.18-.9-.54-.12-.42.18-.78.54-.9 4.56-1.02 8.52-.6 11.64 1.32.42.18.48.66.3 1.02Zm1.44-3.3c-.3.42-.84.6-1.26.3-3.24-1.98-8.16-2.58-11.94-1.38-.48.12-1.02-.12-1.14-.6-.12-.48.12-1.02.6-1.14 4.38-1.32 9.78-.66 13.5 1.62.36.18.54.78.24 1.2Zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.3c-.6.18-1.2-.18-1.38-.72-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.72 1.62.54.3.72 1.02.42 1.56-.3.42-1.02.6-1.56.3Z"/></svg></i><strong>Spotify</strong><small>now playing</small></a>
-              <a class="social" data-social="tiktok" target="_blank" rel="noreferrer"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 1 1-2.08-2.77V9.4a6.34 6.34 0 1 0 5.53 6.29V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76c-.35 0-.68-.03-1.01-.07Z"/></svg></i><strong>TikTok</strong><small>@spiderkaras_</small></a>
-              <a class="social" data-social="telegram" target="_blank" rel="noreferrer"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24Zm5.56 7.98-1.8 8.47c-.13.6-.49.75-.99.47l-2.74-2.02-1.32 1.27c-.15.15-.27.27-.55.27l.2-2.79 5.08-4.59c.22-.2-.05-.31-.34-.11l-6.28 3.95-2.7-.84c-.59-.18-.6-.59.12-.87l10.56-4.07c.49-.18.92.12.76.86Z"/></svg></i><strong>Telegram</strong><small>@spiderkaras</small></a>
-            </div>
-          </section>
-
-          <section class="card rpc" id="rpc" aria-label="spotify rpc">
-            <div class="rpc-head"><strong>now playing</strong><span>lanyard</span></div>
-            <a class="track" id="trackLink" href="#" target="_blank" rel="noreferrer">
-              <div class="cover"><img id="cover" alt="album cover" hidden loading="lazy" /></div>
-              <div>
-                <h3 id="trackTitle">Подключи Discord ID</h3>
-                <p id="trackArtist">Spotify RPC появится здесь.</p>
-                <div class="progress"><span id="elapsed">0:00</span><div class="bar" aria-hidden="true"><i id="bar"></i></div><span id="duration">0:00</span></div>
-              </div>
-            </a>
-
-            <div class="music-player" aria-label="audio player">
-              <div class="music-controls" id="lofiControls">
-                <button class="play-btn" id="playButton" type="button" title="play / pause">▶</button>
-                <div class="player-meta">
-                  <strong id="playerTitle">fallback lofi</strong>
-                  <small id="playerMode">играет, когда Spotify RPC пустой</small>
-                </div>
-              </div>
-              <iframe class="spotify-embed" id="spotifyEmbed" title="Spotify player" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-              <p class="player-note" id="playerNote">Браузер может заблокировать автоплей со звуком — нажми ▶ один раз.</p>
-              <audio id="lofiAudio" preload="none" loop></audio>
-            </div>
-            <div class="setup" id="setupBox">Замени <b>PROFILE.discordId</b> на свой Discord user ID. Для live Spotify RPC нужен Lanyard, включённый Activity Status в Discord и привязанный Spotify.</div>
-          </section>
-        </aside>
-
-        <section class="card comments" id="comments">
-          <div class="section-head">
-            <div>
-              <h2>Комментарии</h2>
-              <p>Comments.app widget, загружается после основной страницы</p>
-            </div>
-            <span class="kbd">comments.app</span>
-          </div>
-          <div class="comments-mount" id="commentsMount">
-            <p class="comments-fallback">comments loading...</p>
-          </div>
-        </section>
-      </div>
-
-      <footer class="footer">
-        <span>Material You / M3 · <span class="kbd">liquid glass</span> · <span id="footerNick" class="smooth-text">spiderkaras</span></span>
-        <span><span id="localTime">--:--</span> · Moscow UTC+3</span>
-      </footer>
-    </section>
+    <footer class="footer">
+      <span class="smooth-text" id="footerNick">spiderkaras</span>
+      <span><span id="localTime">--:--</span> · UTC+3</span>
+    </footer>
   </main>
 
   <script>
     const PROFILE = {
       nicknames: ["spiderkarasXD", "spidorkaras", "spiderkaras"],
-      tagline: "verified </> dev · soft glass pixels",
       discordId: "1407136994764525749",
       avatar: "./picture.png",
 
@@ -745,38 +362,24 @@
         telegram: "https://t.me/spiderkaras"
       },
 
-      // Оставляю аудио, которое уже лежит в репозитории.
-      // Если переименуешь файл — поменяй только src.
       fallbackTrack: {
-        title: "Water Resistant",
-        artist: "Anamanaguchi",
+        title: "Water Resistant — Anamanaguchi",
         src: "./SpotiDownloader.com%20-%20Water%20Resistant%20-%20Anamanaguchi.mp3",
-        cover: "https://api.dicebear.com/9.x/shapes/svg?seed=lofi&backgroundColor=0d1320"
-      },
-
-      facts: [
-        "люблю инди-игры, Forza и сайты с красивым glass-дизайном",
-        "часто меняю ник между spiderkarasXD, spidorkaras и spiderkaras",
-        "делаю bio в стиле Material 3, liquid glass и мягких карточек",
-        "могу залипнуть в GeoGuessr дольше, чем планировал",
-        "музыка почти всегда играет фоном, поэтому тут есть RPC"
-      ]
+        cover: "https://api.dicebear.com/9.x/shapes/svg?seed=lofi&backgroundColor=1c2024"
+      }
     };
 
-    const $ = (selector) => document.querySelector(selector);
-    const state = { nick: 2, fact: 0, start: 0, end: 0, timer: 0, lofiReady: false, spotifyTrackId: "" };
+    const PLAY = '<path d="M8 5v14l11-7z"/>';
+    const PAUSE = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
 
-    function safeHref(url) {
-      return url && url !== "#" ? url : "#";
-    }
+    const $ = (s) => document.querySelector(s);
+    const state = { nick: 2, start: 0, end: 0, timer: 0, spotifyTrackId: "" };
+
+    function safeHref(url) { return url && url !== "#" ? url : "#"; }
 
     function swapText(target, value, instant = false) {
       if (!target || target.textContent === value) return;
-      if (instant) {
-        target.textContent = value;
-        return;
-      }
-
+      if (instant) { target.textContent = value; return; }
       target.classList.add("is-changing");
       window.setTimeout(() => {
         target.textContent = value;
@@ -784,56 +387,23 @@
       }, 180);
     }
 
-    function splitNick(nick) {
-      if (nick.endsWith("karasXD")) return [nick.slice(0, -7), "karasXD"];
-      if (nick.endsWith("karas")) return [nick.slice(0, -5), "karas"];
-      return [nick, ""];
-    }
-
     function setNick(index, instant = false) {
       state.nick = (index + PROFILE.nicknames.length) % PROFILE.nicknames.length;
       const nick = PROFILE.nicknames[state.nick];
-      const [head, tail] = splitNick(nick);
-
       swapText($("#nickname"), nick, instant);
       swapText($("#brandNick"), nick, instant);
-      swapText($("#leadNick"), nick, instant);
-            swapText($("#footerNick"), nick, instant);
-      swapText($("#heroNickA"), head, instant);
-      swapText($("#heroNickB"), tail, instant);
-
-      document.title = `${nick} — bio`;
+      swapText($("#footerNick"), nick, instant);
+      document.title = nick;
     }
 
-    function nextNick() {
-      setNick(state.nick + 1);
-    }
-
-    function setFact(index, instant = false) {
-      const factEl = $("#factText");
-      if (!PROFILE.facts.length) {
-        swapText(factEl, "фактов пока нет — добавь их в PROFILE.facts", instant);
-        return;
-      }
-      state.fact = (index + PROFILE.facts.length) % PROFILE.facts.length;
-      swapText(factEl, PROFILE.facts[state.fact], instant);
-    }
-
-    function randomFact() {
-      if (PROFILE.facts.length < 2) return setFact(0);
-      let next = Math.floor(Math.random() * PROFILE.facts.length);
-      if (next === state.fact) next = (next + 1) % PROFILE.facts.length;
-      setFact(next);
-    }
+    function nextNick() { setNick(state.nick + 1); }
 
     function renderProfile() {
-      $("#tagline").textContent = PROFILE.tagline;
       $("#avatar").src = PROFILE.avatar;
       document.querySelectorAll("[data-social]").forEach((a) => a.href = safeHref(PROFILE.socials[a.dataset.social]));
       $("#lofiAudio").src = PROFILE.fallbackTrack.src;
-      $("#playerTitle").textContent = `${PROFILE.fallbackTrack.title} — ${PROFILE.fallbackTrack.artist}`;
+      $("#playerTitle").textContent = PROFILE.fallbackTrack.title;
       setNick(state.nick, true);
-      setFact(state.fact, true);
     }
 
     function fmt(ms) {
@@ -841,10 +411,7 @@
       return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
     }
 
-    function stopProgress() {
-      if (state.timer) clearInterval(state.timer);
-      state.timer = 0;
-    }
+    function stopProgress() { if (state.timer) clearInterval(state.timer); state.timer = 0; }
 
     function updateProgress() {
       const total = Math.max(1, state.end - state.start);
@@ -863,70 +430,46 @@
         state.spotifyTrackId = "";
         return;
       }
-
       if (state.spotifyTrackId !== trackId) {
         embed.src = `https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`;
         state.spotifyTrackId = trackId;
       }
-
       embed.classList.add("is-active");
     }
 
     function setFallbackPlayer(active) {
       const audio = $("#lofiAudio");
       $("#lofiControls").style.display = active ? "flex" : "none";
-
-      if (!active) {
-        audio.pause();
-        $("#playButton").textContent = "▶";
-        return;
-      }
-
-      $("#playerTitle").textContent = `${PROFILE.fallbackTrack.title} — ${PROFILE.fallbackTrack.artist}`;
-      $("#playerMode").textContent = "fallback, пока в RPC нет Spotify";
-      if (PROFILE.fallbackTrack.cover) {
-        $("#cover").src = PROFILE.fallbackTrack.cover;
-        $("#cover").hidden = false;
-      }
+      if (!active) { audio.pause(); $("#playIcon").innerHTML = PLAY; return; }
+      $("#playerTitle").textContent = PROFILE.fallbackTrack.title;
+      if (PROFILE.fallbackTrack.cover) { $("#cover").src = PROFILE.fallbackTrack.cover; $("#cover").hidden = false; }
     }
 
     async function toggleLofi() {
       const audio = $("#lofiAudio");
       if (!audio.src) audio.src = PROFILE.fallbackTrack.src;
-
       try {
-        if (audio.paused) {
-          await audio.play();
-          $("#playButton").textContent = "Ⅱ";
-        } else {
-          audio.pause();
-          $("#playButton").textContent = "▶";
-        }
-      } catch {
-        $("#playerNote").textContent = "Не удалось запустить lofi: проверь, что файл лежит в assets/lofi.mp3 в GitHub repo, и нажми play ещё раз.";
-      }
+        if (audio.paused) { await audio.play(); $("#playIcon").innerHTML = PAUSE; }
+        else { audio.pause(); $("#playIcon").innerHTML = PLAY; }
+      } catch { /* autoplay blocked */ }
     }
 
-    function setIdle(title = "Сейчас ничего не играет") {
+    function setIdle(title = "ничего не играет") {
       stopProgress();
       $("#trackTitle").textContent = title;
-      $("#trackArtist").textContent = `${PROFILE.fallbackTrack.title} · ${PROFILE.fallbackTrack.artist}`;
+      $("#trackArtist").textContent = PROFILE.fallbackTrack.title;
       $("#trackLink").href = PROFILE.fallbackTrack.src;
       $("#elapsed").textContent = "0:00";
       $("#duration").textContent = "∞";
       $("#bar").style.width = "100%";
-      $("#presenceText").textContent = "music rpc / lofi fallback";
-      $("#playerNote").textContent = "Если RPC пустой, доступен lofi fallback из assets/lofi.mp3. Автоплей со звуком обычно блокируется — нажми ▶.";
+      $("#presenceText").textContent = "lofi fallback";
       setSpotifyPlayer("");
       setFallbackPlayer(true);
     }
 
     async function loadRpc() {
       const id = PROFILE.discordId.trim();
-      const needSetup = !(new RegExp("^[0-9]{17,22}$")).test(id);
-      $("#setupBox").style.display = needSetup ? "block" : "none";
-      if (needSetup) return setIdle("Нужен Discord ID");
-
+      if (!/^[0-9]{17,22}$/.test(id)) return setIdle("нужен Discord ID");
       try {
         const res = await fetch(`https://api.lanyard.rest/v1/users/${id}`, { cache: "no-store" });
         if (!res.ok) throw new Error(res.status);
@@ -937,30 +480,24 @@
           $("#avatar").src = `https://cdn.discordapp.com/avatars/${data.discord_user.id}/${data.discord_user.avatar}.png?size=160`;
         }
 
-        if (!sp) return setIdle("Сейчас не слушаю Spotify");
+        if (!sp) return setIdle("не слушаю Spotify");
 
         stopProgress();
         setFallbackPlayer(false);
         $("#trackTitle").textContent = sp.song || "Unknown track";
-        $("#trackArtist").textContent = `${sp.artist || "Unknown artist"} · ${sp.album || "Unknown album"}`;
+        $("#trackArtist").textContent = `${sp.artist || "Unknown artist"} · ${sp.album || ""}`;
         $("#presenceText").textContent = "listening on Spotify";
         $("#trackLink").href = sp.track_id ? `https://open.spotify.com/track/${sp.track_id}` : PROFILE.socials.spotify;
-        $("#playerMode").textContent = "Spotify трек из RPC";
-        $("#playerNote").textContent = "Когда RPC активен, ниже показывается Spotify-плеер этого трека.";
         setSpotifyPlayer(sp.track_id || "");
 
-        if (sp.album_art_url) {
-          $("#cover").src = sp.album_art_url;
-          $("#cover").hidden = false;
-        }
+        if (sp.album_art_url) { $("#cover").src = sp.album_art_url; $("#cover").hidden = false; }
 
         state.start = sp.timestamps?.start || Date.now();
         state.end = sp.timestamps?.end || Date.now();
         updateProgress();
         state.timer = setInterval(updateProgress, 1000);
       } catch {
-        setIdle("RPC временно недоступен");
-        $("#setupBox").style.display = "block";
+        setIdle("RPC недоступен");
       }
     }
 
@@ -988,20 +525,14 @@
 
     $("#nickButton").addEventListener("click", nextNick);
     $("#playButton").addEventListener("click", toggleLofi);
-    $("#factButton").addEventListener("click", randomFact);
-    $("#prevFact").addEventListener("click", () => setFact(state.fact - 1));
-    $("#nextFact").addEventListener("click", () => setFact(state.fact + 1));
 
     setInterval(nextNick, 3200);
     setInterval(tickClock, 15000);
     loadRpc();
     setInterval(loadRpc, 45000);
 
-    if ("requestIdleCallback" in window) {
-      requestIdleCallback(loadComments, { timeout: 2500 });
-    } else {
-      setTimeout(loadComments, 1400);
-    }
+    if ("requestIdleCallback" in window) requestIdleCallback(loadComments, { timeout: 2500 });
+    else setTimeout(loadComments, 1400);
   </script>
 </body>
 </html>
