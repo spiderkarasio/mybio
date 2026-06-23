@@ -150,19 +150,6 @@
       letter-spacing: -.02em;
     }
 
-    .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-    .chip {
-      height: 32px;
-      padding: 0 12px;
-      display: inline-flex;
-      align-items: center;
-      border-radius: var(--shape-xs);
-      border: 1px solid var(--outline-variant);
-      color: var(--on-surface-variant);
-      font-size: 13px;
-      font-weight: 500;
-    }
-
     /* M3 icon button (filled tonal) */
     .icon-btn {
       width: 40px; height: 40px;
@@ -253,9 +240,10 @@
     .social strong { font-size: 14px; font-weight: 600; }
 
     /* ---- comments ---- */
-    .comments { padding: 16px; background: #2F3335; }
+    .comments { padding: 16px; background: #2F3335 !important; }
     .comments h2 { margin: 0 0 14px; font-size: 16px; font-weight: 600; }
     .comments-mount { min-height: 120px; background: #2F3335; border-radius: var(--shape-md); }
+    .comments-mount iframe { background: #2F3335 !important; }
     .comments-fallback { margin: 0; color: var(--on-surface-variant); font-size: 13px; }
 
     /* ---- footer ---- */
@@ -295,12 +283,6 @@
           <button class="icon-btn" id="nickButton" type="button" aria-label="сменить ник">
             <svg viewBox="0 0 24 24"><path d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-9.58 2H5.26A7 7 0 0 0 19 13c0-3.87-3.13-7-7-7Z"/></svg>
           </button>
-        </div>
-        <div class="chips">
-          <span class="chip">web-dev</span>
-          <span class="chip">music</span>
-          <span class="chip">geoguessr</span>
-          <span class="chip">forza</span>
         </div>
       </section>
 
@@ -472,8 +454,12 @@
       if (!/^[0-9]{17,22}$/.test(id)) return setIdle("нужен Discord ID");
       try {
         const res = await fetch(`https://api.lanyard.rest/v1/users/${id}`, { cache: "no-store" });
-        if (!res.ok) throw new Error(res.status);
-        const { data } = await res.json();
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || json.success === false) {
+          if (json?.error?.code === "user_not_monitored") return setIdle("вступи в discord.gg/lanyard");
+          throw new Error(res.status);
+        }
+        const { data } = json;
         const sp = data?.spotify;
 
         if (data?.discord_user?.avatar) {
