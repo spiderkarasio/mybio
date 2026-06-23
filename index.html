@@ -210,6 +210,10 @@
     .player-meta { min-width: 0; flex: 1; }
     .player-meta strong { display: block; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+    /* inline Spotify player */
+    .spotify-embed { display: none; width: 100%; height: 80px; border: 0; border-radius: var(--shape-md); margin-top: 14px; }
+    .spotify-embed.is-active { display: block; }
+
     /* M3 volume slider */
     .volume {
       display: flex; align-items: center; gap: 10px;
@@ -322,17 +326,21 @@
         </a>
         <div class="progress"><span id="elapsed">0:00</span><div class="bar"><i id="bar"></i></div><span id="duration">0:00</span></div>
 
-        <div class="player" id="lofiControls">
-          <button class="play-btn" id="playButton" type="button" aria-label="play / pause">
-            <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <div class="player-meta">
-            <strong id="playerTitle">fallback</strong>
+        <iframe class="spotify-embed" id="spotifyEmbed" title="Spotify" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+        <div id="lofiControls">
+          <div class="player">
+            <button class="play-btn" id="playButton" type="button" aria-label="play / pause">
+              <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="player-meta">
+              <strong id="playerTitle">fallback</strong>
+            </div>
           </div>
-        </div>
-        <div class="volume" id="volumeControl">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12Z"/></svg>
-          <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7" aria-label="громкость" />
+          <div class="volume">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12Z"/></svg>
+            <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7" aria-label="громкость" />
+          </div>
         </div>
         <audio id="lofiAudio" preload="none" loop></audio>
       </section>
@@ -383,7 +391,7 @@
     const PAUSE = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
 
     const $ = (s) => document.querySelector(s);
-    const state = { nick: 2, start: 0, end: 0, timer: 0 };
+    const state = { nick: 2, start: 0, end: 0, timer: 0, ws: null, heartbeat: 0, spotifyTrackId: "" };
 
     function safeHref(url) { return url && url !== "#" ? url : "#"; }
 
@@ -433,9 +441,24 @@
       if (elapsed >= total) stopProgress();
     }
 
+    function setSpotifyPlayer(trackId) {
+      const embed = $("#spotifyEmbed");
+      if (!trackId) {
+        embed.classList.remove("is-active");
+        embed.removeAttribute("src");
+        state.spotifyTrackId = "";
+        return;
+      }
+      if (state.spotifyTrackId !== trackId) {
+        embed.src = `https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`;
+        state.spotifyTrackId = trackId;
+      }
+      embed.classList.add("is-active");
+    }
+
     function setFallbackPlayer(active) {
       const audio = $("#lofiAudio");
-      $("#lofiControls").style.display = active ? "flex" : "none";
+      $("#lofiControls").style.display = active ? "block" : "none";
       if (!active) { audio.pause(); $("#playIcon").innerHTML = PLAY; return; }
       $("#playerTitle").textContent = PROFILE.fallbackTrack.title;
       if (PROFILE.fallbackTrack.cover) { $("#cover").src = PROFILE.fallbackTrack.cover; $("#cover").hidden = false; }
@@ -459,44 +482,70 @@
       $("#duration").textContent = "∞";
       $("#bar").style.width = "100%";
       $("#presenceText").textContent = "lofi fallback";
+      setSpotifyPlayer("");
       setFallbackPlayer(true);
     }
 
-    async function loadRpc() {
+    // Render a Lanyard presence object (same shape from REST and WebSocket).
+    function applyPresence(data) {
+      const sp = data?.spotify;
+
+      if (data?.discord_user?.avatar) {
+        $("#avatar").src = `https://cdn.discordapp.com/avatars/${data.discord_user.id}/${data.discord_user.avatar}.png?size=160`;
+      }
+
+      if (!sp) return setIdle("не слушаю Spotify");
+
+      stopProgress();
+      setFallbackPlayer(false);
+      $("#trackTitle").textContent = sp.song || "Unknown track";
+      $("#trackArtist").textContent = `${sp.artist || "Unknown artist"} · ${sp.album || ""}`;
+      $("#presenceText").textContent = "listening on Spotify";
+      $("#trackLink").href = sp.track_id ? `https://open.spotify.com/track/${sp.track_id}` : PROFILE.socials.spotify;
+      setSpotifyPlayer(sp.track_id || "");
+
+      if (sp.album_art_url) { $("#cover").src = sp.album_art_url; $("#cover").hidden = false; }
+
+      state.start = sp.timestamps?.start || Date.now();
+      state.end = sp.timestamps?.end || Date.now();
+      updateProgress();
+      state.timer = setInterval(updateProgress, 1000);
+    }
+
+    // Real-time presence via Lanyard WebSocket (same mechanism Discord uses),
+    // so updates are instant instead of polling every N seconds.
+    function connectLanyard() {
       const id = PROFILE.discordId.trim();
       if (!/^[0-9]{17,22}$/.test(id)) return setIdle("нужен Discord ID");
-      try {
-        const res = await fetch(`https://api.lanyard.rest/v1/users/${id}`, { cache: "no-store" });
-        const json = await res.json().catch(() => ({}));
-        if (!res.ok || json.success === false) {
-          if (json?.error?.code === "user_not_monitored") return setIdle("вступи в discord.gg/lanyard");
-          throw new Error(res.status);
+
+      let ws;
+      try { ws = new WebSocket("wss://api.lanyard.rest/socket"); }
+      catch { return setIdle("RPC недоступен"); }
+      state.ws = ws;
+
+      ws.addEventListener("message", (e) => {
+        let msg;
+        try { msg = JSON.parse(e.data); } catch { return; }
+
+        if (msg.op === 1) {
+          // Hello: start heartbeat and subscribe to this Discord user.
+          clearInterval(state.heartbeat);
+          state.heartbeat = setInterval(() => {
+            if (ws.readyState === 1) ws.send(JSON.stringify({ op: 3 }));
+          }, msg.d.heartbeat_interval);
+          ws.send(JSON.stringify({ op: 2, d: { subscribe_to_id: id } }));
+        } else if (msg.op === 0) {
+          // INIT_STATE / PRESENCE_UPDATE — d is the presence object.
+          const data = msg.d && msg.d.discord_user ? msg.d : (msg.d?.[id] || msg.d);
+          applyPresence(data);
         }
-        const { data } = json;
-        const sp = data?.spotify;
+      });
 
-        if (data?.discord_user?.avatar) {
-          $("#avatar").src = `https://cdn.discordapp.com/avatars/${data.discord_user.id}/${data.discord_user.avatar}.png?size=160`;
-        }
-
-        if (!sp) return setIdle("не слушаю Spotify");
-
-        stopProgress();
-        setFallbackPlayer(false);
-        $("#trackTitle").textContent = sp.song || "Unknown track";
-        $("#trackArtist").textContent = `${sp.artist || "Unknown artist"} · ${sp.album || ""}`;
-        $("#presenceText").textContent = "listening on Spotify";
-        $("#trackLink").href = sp.track_id ? `https://open.spotify.com/track/${sp.track_id}` : PROFILE.socials.spotify;
-
-        if (sp.album_art_url) { $("#cover").src = sp.album_art_url; $("#cover").hidden = false; }
-
-        state.start = sp.timestamps?.start || Date.now();
-        state.end = sp.timestamps?.end || Date.now();
-        updateProgress();
-        state.timer = setInterval(updateProgress, 1000);
-      } catch {
-        setIdle("RPC недоступен");
-      }
+      ws.addEventListener("close", () => {
+        clearInterval(state.heartbeat);
+        setTimeout(connectLanyard, 3000); // auto-reconnect like a Discord client
+      });
+      ws.addEventListener("error", () => { try { ws.close(); } catch {} });
     }
 
     function loadComments() {
@@ -527,8 +576,7 @@
 
     setInterval(nextNick, 3200);
     setInterval(tickClock, 15000);
-    loadRpc();
-    setInterval(loadRpc, 45000);
+    connectLanyard();
 
     if ("requestIdleCallback" in window) requestIdleCallback(loadComments, { timeout: 2500 });
     else setTimeout(loadComments, 1400);
