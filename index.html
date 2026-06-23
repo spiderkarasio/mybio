@@ -194,53 +194,6 @@
     .bar { height: 4px; border-radius: var(--shape-full); background: var(--surface-container-highest); overflow: hidden; }
     .bar i { display: block; width: 0%; height: 100%; background: var(--primary); border-radius: inherit; transition: width .6s linear; }
 
-    /* fallback player */
-    .player { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
-    .play-btn {
-      width: 48px; height: 48px;
-      flex: 0 0 auto;
-      display: grid; place-items: center;
-      border-radius: var(--shape-full);
-      background: var(--primary);
-      color: var(--on-primary);
-      transition: filter .15s var(--easing);
-    }
-    .play-btn:active { filter: brightness(.92); }
-    .play-btn svg { width: 22px; height: 22px; fill: currentColor; }
-    .player-meta { min-width: 0; flex: 1; }
-    .player-meta strong { display: block; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    /* inline Spotify player */
-    .spotify-embed { display: none; width: 100%; height: 80px; border: 0; border-radius: var(--shape-md); margin-top: 14px; }
-    .spotify-embed.is-active { display: block; }
-
-    /* M3 volume slider */
-    .volume {
-      display: flex; align-items: center; gap: 10px;
-      margin-top: 14px;
-      color: var(--on-surface-variant);
-    }
-    .volume svg { width: 20px; height: 20px; flex: 0 0 auto; fill: currentColor; }
-    .volume input[type="range"] {
-      -webkit-appearance: none; appearance: none;
-      flex: 1; height: 4px; margin: 0;
-      border-radius: var(--shape-full);
-      background: var(--surface-container-highest);
-      cursor: pointer;
-    }
-    .volume input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none; appearance: none;
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      background: var(--primary);
-      border: 0;
-    }
-    .volume input[type="range"]::-moz-range-thumb {
-      width: 16px; height: 16px;
-      border: 0; border-radius: 50%;
-      background: var(--primary);
-    }
-
     /* ---- socials grid ---- */
     .socials {
       padding: 12px;
@@ -325,24 +278,6 @@
           </div>
         </a>
         <div class="progress"><span id="elapsed">0:00</span><div class="bar"><i id="bar"></i></div><span id="duration">0:00</span></div>
-
-        <iframe class="spotify-embed" id="spotifyEmbed" title="Spotify" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-
-        <div id="lofiControls">
-          <div class="player">
-            <button class="play-btn" id="playButton" type="button" aria-label="play / pause">
-              <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-            <div class="player-meta">
-              <strong id="playerTitle">fallback</strong>
-            </div>
-          </div>
-          <div class="volume">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12Z"/></svg>
-            <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7" aria-label="громкость" />
-          </div>
-        </div>
-        <audio id="lofiAudio" preload="none" loop></audio>
       </section>
 
       <section class="card socials" id="socials">
@@ -378,20 +313,11 @@
         spotify: "https://open.spotify.com/",
         tiktok: "https://www.tiktok.com/@spiderkaras_",
         telegram: "https://t.me/spiderkaras"
-      },
-
-      fallbackTrack: {
-        title: "Water Resistant — Anamanaguchi",
-        src: "./SpotiDownloader.com%20-%20Water%20Resistant%20-%20Anamanaguchi.mp3",
-        cover: "https://api.dicebear.com/9.x/shapes/svg?seed=lofi&backgroundColor=1c2024"
       }
     };
 
-    const PLAY = '<path d="M8 5v14l11-7z"/>';
-    const PAUSE = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
-
     const $ = (s) => document.querySelector(s);
-    const state = { nick: 2, start: 0, end: 0, timer: 0, ws: null, heartbeat: 0, spotifyTrackId: "" };
+    const state = { nick: 2, start: 0, end: 0, timer: 0, ws: null, heartbeat: 0 };
 
     function safeHref(url) { return url && url !== "#" ? url : "#"; }
 
@@ -419,9 +345,6 @@
     function renderProfile() {
       $("#avatar").src = PROFILE.avatar;
       document.querySelectorAll("[data-social]").forEach((a) => a.href = safeHref(PROFILE.socials[a.dataset.social]));
-      $("#lofiAudio").src = PROFILE.fallbackTrack.src;
-      $("#lofiAudio").volume = Number($("#volume").value);
-      $("#playerTitle").textContent = PROFILE.fallbackTrack.title;
       setNick(state.nick, true);
     }
 
@@ -441,49 +364,16 @@
       if (elapsed >= total) stopProgress();
     }
 
-    function setSpotifyPlayer(trackId) {
-      const embed = $("#spotifyEmbed");
-      if (!trackId) {
-        embed.classList.remove("is-active");
-        embed.removeAttribute("src");
-        state.spotifyTrackId = "";
-        return;
-      }
-      if (state.spotifyTrackId !== trackId) {
-        embed.src = `https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`;
-        state.spotifyTrackId = trackId;
-      }
-      embed.classList.add("is-active");
-    }
-
-    function setFallbackPlayer(active) {
-      const audio = $("#lofiAudio");
-      $("#lofiControls").style.display = active ? "block" : "none";
-      if (!active) { audio.pause(); $("#playIcon").innerHTML = PLAY; return; }
-      $("#playerTitle").textContent = PROFILE.fallbackTrack.title;
-      if (PROFILE.fallbackTrack.cover) { $("#cover").src = PROFILE.fallbackTrack.cover; $("#cover").hidden = false; }
-    }
-
-    async function toggleLofi() {
-      const audio = $("#lofiAudio");
-      if (!audio.src) audio.src = PROFILE.fallbackTrack.src;
-      try {
-        if (audio.paused) { await audio.play(); $("#playIcon").innerHTML = PAUSE; }
-        else { audio.pause(); $("#playIcon").innerHTML = PLAY; }
-      } catch { /* autoplay blocked */ }
-    }
-
     function setIdle(title = "ничего не играет") {
       stopProgress();
       $("#trackTitle").textContent = title;
-      $("#trackArtist").textContent = PROFILE.fallbackTrack.title;
-      $("#trackLink").href = PROFILE.fallbackTrack.src;
+      $("#trackArtist").textContent = "—";
+      $("#trackLink").href = PROFILE.socials.spotify;
       $("#elapsed").textContent = "0:00";
-      $("#duration").textContent = "∞";
-      $("#bar").style.width = "100%";
-      $("#presenceText").textContent = "lofi fallback";
-      setSpotifyPlayer("");
-      setFallbackPlayer(true);
+      $("#duration").textContent = "0:00";
+      $("#bar").style.width = "0%";
+      $("#presenceText").textContent = "online";
+      $("#cover").hidden = true;
     }
 
     // Render a Lanyard presence object (same shape from REST and WebSocket).
@@ -497,12 +387,10 @@
       if (!sp) return setIdle("не слушаю Spotify");
 
       stopProgress();
-      setFallbackPlayer(false);
       $("#trackTitle").textContent = sp.song || "Unknown track";
       $("#trackArtist").textContent = `${sp.artist || "Unknown artist"} · ${sp.album || ""}`;
       $("#presenceText").textContent = "listening on Spotify";
       $("#trackLink").href = sp.track_id ? `https://open.spotify.com/track/${sp.track_id}` : PROFILE.socials.spotify;
-      setSpotifyPlayer(sp.track_id || "");
 
       if (sp.album_art_url) { $("#cover").src = sp.album_art_url; $("#cover").hidden = false; }
 
@@ -571,8 +459,6 @@
     tickClock();
 
     $("#nickButton").addEventListener("click", nextNick);
-    $("#playButton").addEventListener("click", toggleLofi);
-    $("#volume").addEventListener("input", (e) => { $("#lofiAudio").volume = Number(e.target.value); });
 
     setInterval(nextNick, 3200);
     setInterval(tickClock, 15000);
